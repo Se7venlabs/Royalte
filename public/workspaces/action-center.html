@@ -24,25 +24,103 @@
   </script>
   <script src="/js/mc-workspace-context.js"></script>
   <style>
+    /* ── Hero ─────────────────────────────────────────────────────────── */
+    .ec-hero {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; padding: 20px 24px;
+      background: linear-gradient(135deg, var(--ws-accent-soft), transparent);
+      border: 1px solid var(--ws-accent-border);
+      border-top: 2px solid var(--ws-accent-border);
+      border-radius: 10px; margin-bottom: 16px;
+    }
+    .ec-hero-icon-block { flex-shrink: 0; }
+    .ec-hero-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(145deg, var(--ws-accent-soft), transparent);
+      border: 1px solid var(--ws-accent-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ws-accent);
+      box-shadow: 0 0 20px var(--ws-accent-glow, transparent), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .ec-hero-icon svg { width: 26px; height: 26px; }
+    .ec-hero-title-block { flex: 1; }
+    .ec-hero-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ws-accent); margin-bottom: 4px;
+    }
+    .ec-hero-heading { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--mc-text); margin: 0 0 6px; }
+    .ec-hero-desc { font-size: 13px; color: var(--mc-text-muted); max-width: 640px; line-height: 1.5; }
+
+    /* ── KPI row (reuses hi-kpi-row / hi-kpi-card shell from royalte-workspace.css) ── */
+    .ec-kpi-row { margin-bottom: 18px; }
+
+    /* ── Sections ─────────────────────────────────────────────────────── */
     .ec-section { border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface); padding: 20px 22px; margin-bottom: 16px; }
     .ec-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-    .ec-section-title { font-size: 14px; font-weight: 700; color: var(--mc-text); }
+    .ec-section-title-row { display: flex; align-items: center; gap: 10px; }
+    .ec-section-icon {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--ws-accent-soft); border: 1px solid var(--ws-accent-border); color: var(--ws-accent);
+    }
+    .ec-section-icon svg { width: 16px; height: 16px; }
+    .ec-section-title { font-size: 15px; font-weight: 700; color: var(--mc-text); }
     .ec-section-sub { font-size: 11.5px; color: var(--mc-text-muted); }
-    .ec-section-status { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--ws-accent-border); color: var(--ws-accent); background: var(--ws-accent-soft); }
+    .ec-section-status { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--ws-accent-border); color: var(--ws-accent); background: var(--ws-accent-soft); white-space: nowrap; }
     .ec-section-empty { margin-top: 12px; font-size: 12px; color: var(--mc-text-faint); line-height: 1.6; }
-    .ec-roadmap-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+
+    /* ── Roadmap columns ──────────────────────────────────────────────── */
+    .ec-roadmap-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 18px; }
     @media (max-width: 900px) { .ec-roadmap-cols { grid-template-columns: 1fr; } }
-    .ec-roadmap-col-header { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-muted); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-    .ec-roadmap-col-count { color: var(--mc-text-faint); font-weight: 600; }
-    .ec-roadmap-card { border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px 13px; background: var(--mc-surface-2); margin-bottom: 10px; }
-    .ec-roadmap-card-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text); margin-bottom: 4px; }
-    .ec-roadmap-card-score { font-size: 10.5px; color: var(--mc-text-muted); }
-    .ec-roadmap-card-why { font-size: 11px; color: var(--mc-text-faint); line-height: 1.5; margin-top: 6px; }
-    .ec-quick-win-badge { display: inline-block; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.28); margin-left: 6px; }
-    .ec-roadmap-col-empty { font-size: 11px; color: var(--mc-text-faint); font-style: italic; }
-    .ec-metrics-row { display: flex; gap: 16px; margin-top: 4px; flex-wrap: wrap; }
-    .ec-metric { font-size: 11px; color: var(--mc-text-muted); }
-    .ec-metric strong { color: var(--mc-text); font-weight: 700; }
+    .ec-roadmap-col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--mc-border);
+    }
+    .ec-roadmap-col-label-group { display: flex; align-items: center; gap: 8px; }
+    .ec-roadmap-col-icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ec-roadmap-col-icon svg { width: 12px; height: 12px; }
+    .ec-roadmap-col-icon--now  { background: rgba(248,113,113,0.14); color: #f87171; }
+    .ec-roadmap-col-icon--next { background: var(--mc-orange-soft); color: var(--mc-orange); }
+    .ec-roadmap-col-icon--later{ background: var(--mc-blue-soft); color: var(--mc-blue); }
+    .ec-roadmap-col-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mc-text); }
+    .ec-roadmap-col-sub { font-size: 9.5px; color: var(--mc-text-faint); }
+    .ec-roadmap-col-count { font-size: 12px; font-weight: 700; color: var(--mc-text-muted); background: var(--mc-surface-3); border-radius: 20px; padding: 2px 9px; }
+    .ec-roadmap-col-empty { font-size: 11.5px; color: var(--mc-text-faint); font-style: italic; padding: 8px 0; }
+
+    /* ── Roadmap cards ────────────────────────────────────────────────── */
+    .ec-roadmap-card { border: 1px solid var(--mc-border); border-radius: 10px; padding: 14px; background: var(--mc-surface-2); margin-bottom: 10px; transition: border-color .15s ease; }
+    .ec-roadmap-card:hover { border-color: var(--ws-accent-border); }
+    .ec-roadmap-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .ec-roadmap-card-title { font-size: 13px; font-weight: 700; color: var(--mc-text); line-height: 1.35; }
+    .ec-quick-win-badge { display: inline-block; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.28); margin-left: 6px; vertical-align: middle; }
+    .ec-priority-badge { font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+    .ec-priority-badge--high   { color: #f87171; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.28); }
+    .ec-priority-badge--medium { color: var(--mc-orange); background: var(--mc-orange-soft); border: 1px solid var(--mc-border-orange, rgba(251,146,60,0.28)); }
+    .ec-priority-badge--low    { color: var(--mc-text-muted); background: var(--mc-surface-3); border: 1px solid var(--mc-border); }
+    .ec-roadmap-card-why { font-size: 11.5px; color: var(--mc-text-faint); line-height: 1.55; margin-top: 6px; }
+    .ec-roadmap-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .ec-meta-chip { font-size: 10px; color: var(--mc-text-muted); background: var(--mc-surface-3); border: 1px solid var(--mc-border); border-radius: 6px; padding: 3px 8px; }
+    .ec-roadmap-card-score-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .ec-score-bar { flex: 1; height: 4px; border-radius: 3px; background: var(--mc-surface-3); overflow: hidden; }
+    .ec-score-bar-fill { height: 100%; background: var(--ws-accent); border-radius: 3px; }
+    .ec-score-num { font-size: 10.5px; font-weight: 700; color: var(--mc-text-muted); white-space: nowrap; }
+
+    /* ── Quick Wins strip ─────────────────────────────────────────────── */
+    .ec-quickwins-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
+    .ec-quickwin-tile { display: flex; align-items: center; gap: 12px; border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px; background: var(--mc-surface-2); }
+    .ec-quickwin-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.28); color: #4ade80; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ec-quickwin-icon svg { width: 17px; height: 17px; }
+    .ec-quickwin-title { font-size: 12px; font-weight: 700; color: var(--mc-text); line-height: 1.3; }
+    .ec-quickwin-meta { font-size: 10.5px; color: var(--mc-text-faint); margin-top: 2px; }
+
+    /* ── Roadmap module cards (Timeline / Progress / Playbooks) ─────────── */
+    .ec-modules-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 900px) { .ec-modules-row { grid-template-columns: 1fr; } }
+    .ec-module-card { border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface); padding: 18px; }
+    .ec-module-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--ws-accent-soft); border: 1px solid var(--ws-accent-border); color: var(--ws-accent); margin-bottom: 12px; }
+    .ec-module-icon svg { width: 19px; height: 19px; }
+    .ec-module-title { font-size: 13.5px; font-weight: 700; color: var(--mc-text); margin-bottom: 4px; }
+    .ec-module-desc { font-size: 11.5px; color: var(--mc-text-muted); line-height: 1.5; margin-bottom: 12px; }
   </style>
 </head>
 <body>
@@ -137,51 +215,119 @@
     </header>
 
     <div class="ws-body" style="opacity:0;transition:opacity .2s ease;">
-      <h1 style="font-size:20px;font-weight:800;color:var(--mc-text);margin-bottom:4px;">Executive Action Center™</h1>
-      <div style="font-size:12.5px;color:var(--mc-text-muted);margin-bottom:18px;">The canonical home for Executive Opportunity Roadmap™, Executive Timeline™, Executive Progress™, and Guided Playbooks™ — Phase 4 Executive Actions™.</div>
 
+      <!-- § HERO ──────────────────────────────────────────────────────── -->
+      <div class="ec-hero">
+        <div class="ec-hero-icon-block">
+          <div class="ec-hero-icon" aria-hidden="true">
+            <svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg>
+          </div>
+        </div>
+        <div class="ec-hero-title-block">
+          <div class="ec-hero-eyebrow">Executive Action Center™</div>
+          <h1 class="ec-hero-heading">Executive Action Center™</h1>
+          <div class="ec-hero-desc">Your personalized action center to maximize royalty potential, close gaps, and grow your music business — powered by the Executive Opportunity Engine™.</div>
+        </div>
+      </div>
+
+      <!-- § KPI CARDS — real Opportunity Engine counts only, no fabricated
+           dollar or aggregate-score metrics (see PR description). ────── -->
+      <div class="ec-kpi-row hi-kpi-row">
+        <div class="hi-kpi-card">
+          <div class="hi-kpi-label hi-kpi-label--purple">Executive Opportunities™</div>
+          <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--purple" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-signal"></use></svg>
+          </div>
+          <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="ec-kpi-total">—</span></div>
+          <div class="ii-kpi-caption">Ranked, actionable opportunities</div>
+        </div>
+        <div class="hi-kpi-card">
+          <div class="hi-kpi-label hi-kpi-label--green">Quick Wins™ Available</div>
+          <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--green" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-trend-up"></use></svg>
+          </div>
+          <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="ec-kpi-quickwins">—</span></div>
+          <div class="ii-kpi-caption">High-confidence, low-effort actions</div>
+        </div>
+        <div class="hi-kpi-card">
+          <div class="hi-kpi-label hi-kpi-label--crimson">Do Now™</div>
+          <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--crimson" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-alert"></use></svg>
+          </div>
+          <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="ec-kpi-donow">—</span></div>
+          <div class="ii-kpi-caption">Highest-priority opportunities today</div>
+        </div>
+        <div class="hi-kpi-card">
+          <div class="hi-kpi-label hi-kpi-label--blue">Resolved This Month</div>
+          <div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--blue" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-verified"></use></svg>
+          </div>
+          <div class="ii-kpi-num-row"><span class="ii-kpi-big-num" id="ec-kpi-resolved">—</span></div>
+          <div class="ii-kpi-caption">Independently verified completions</div>
+        </div>
+      </div>
+
+      <!-- § EXECUTIVE OPPORTUNITY ROADMAP — centerpiece ─────────────────── -->
       <div id="ec-roadmap-section" class="ec-section">
         <div class="ec-section-header">
-          <div>
-            <div class="ec-section-title">Executive Opportunity Roadmap™</div>
-            <div class="ec-section-sub">Do Now · Do Next · Do Later · Quick Wins</div>
+          <div class="ec-section-title-row">
+            <div class="ec-section-icon" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-signal"></use></svg>
+            </div>
+            <div>
+              <div class="ec-section-title">Executive Opportunity Roadmap™</div>
+              <div class="ec-section-sub">Prioritized actions to maximize your music business</div>
+            </div>
           </div>
           <span class="ec-section-status" id="ec-roadmap-status">Loading…</span>
         </div>
         <div id="ec-roadmap-body"></div>
       </div>
 
-      <div id="ec-timeline-section" class="ec-section">
+      <!-- § QUICK WINS — reuses roadmap.quickWins, no separate computation ── -->
+      <div id="ec-quickwins-section" class="ec-section" hidden>
         <div class="ec-section-header">
-          <div>
-            <div class="ec-section-title">Executive Timeline™</div>
-            <div class="ec-section-sub">Every Playbook lifecycle event, in order</div>
+          <div class="ec-section-title-row">
+            <div class="ec-section-icon" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-trend-up"></use></svg>
+            </div>
+            <div>
+              <div class="ec-section-title">Quick Wins™</div>
+              <div class="ec-section-sub">The fastest ways to improve your music business</div>
+            </div>
           </div>
-          <span class="ec-section-status">Phase 4C — PR #3</span>
         </div>
-        <div class="ec-section-empty">Not yet wired to this workspace.</div>
+        <div class="ec-quickwins-row" id="ec-quickwins-body"></div>
       </div>
 
-      <div id="ec-progress-section" class="ec-section">
-        <div class="ec-section-header">
-          <div>
-            <div class="ec-section-title">Executive Progress™</div>
-            <div class="ec-section-sub">Scope under Board review</div>
+      <!-- § ROADMAP MODULES — Timeline / Progress / Playbooks (not yet wired) ── -->
+      <div class="ec-modules-row">
+        <div id="ec-timeline-section" class="ec-module-card">
+          <div class="ec-module-icon" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
           </div>
-          <span class="ec-section-status">Phase 4C — PR #4</span>
+          <div class="ec-module-title">Executive Timeline™</div>
+          <div class="ec-module-desc">Your personalized timeline of actions, organized by when to take them.</div>
+          <span class="ec-section-status">Coming in PR #3</span>
         </div>
-        <div class="ec-section-empty">Not yet wired to this workspace.</div>
-      </div>
 
-      <div id="ec-playbooks-section" class="ec-section">
-        <div class="ec-section-header">
-          <div>
-            <div class="ec-section-title">Guided Playbooks™</div>
-            <div class="ec-section-sub">Currently on AI Insights™ — relocating here</div>
+        <div id="ec-progress-section" class="ec-module-card">
+          <div class="ec-module-icon" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-performance"></use></svg>
           </div>
-          <span class="ec-section-status">Phase 4C — PR #5</span>
+          <div class="ec-module-title">Executive Progress™</div>
+          <div class="ec-module-desc">Track your progress and see your business health improve over time.</div>
+          <span class="ec-section-status">Coming in PR #4</span>
         </div>
-        <div class="ec-section-empty">Not yet wired to this workspace.</div>
+
+        <div id="ec-playbooks-section" class="ec-module-card">
+          <div class="ec-module-icon" aria-hidden="true">
+            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-collection"></use></svg>
+          </div>
+          <div class="ec-module-title">Guided Playbooks™</div>
+          <div class="ec-module-desc">Step-by-step guidance to complete actions with confidence. Currently on AI Insights™ — relocating here.</div>
+          <span class="ec-section-status">Coming in PR #5</span>
+        </div>
       </div>
     </div>
   </div>
@@ -204,19 +350,34 @@ if (_result.state !== 'valid') {
 
 function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 
+function titleCase(s) {
+  if (!s) return '—';
+  return String(s).charAt(0) + String(s).slice(1).toLowerCase();
+}
+
+function priorityBadgeClass(rawValue) {
+  var v = String(rawValue || '').toUpperCase();
+  if (v === 'HIGH') return 'ec-priority-badge--high';
+  if (v === 'MEDIUM') return 'ec-priority-badge--medium';
+  return 'ec-priority-badge--low';
+}
+
 // ═══════════════════════════════════════════════════════════
 // § 2 — INTELLIGENCE
 // Executive Opportunity Roadmap™ (Phase 4C PR #2). Consumes the
 // existing /api/opportunity-actions transport exactly as-is -- no
 // scoring, ranking, or band logic duplicated here; every card below
 // renders fields the Executive Opportunity Engine™ (Phase 4B) already
-// computed and persisted. POST {action:'computeRoadmap'} on load,
-// not GET-then-empty: this is the very first UI consumer of Phase 4B
-// (confirmed zero prior consumers anywhere in the codebase), so a
-// stale-or-empty first visit would be a confusing executive
-// experience -- computeRoadmap is explicitly documented as the
-// caller-initiated write trigger, and opening this workspace is
-// exactly that, the same way opening a scan is what triggers a scan.
+// computed and persisted, including the per-factor factorBreakdown
+// (priorityWeight, difficulty, estimatedTime, revenuePotential) the
+// Scoring Engine already produces -- no new metadata invented for this
+// UI pass. POST {action:'computeRoadmap'} on load, not GET-then-empty:
+// this is the very first UI consumer of Phase 4B (confirmed zero prior
+// consumers anywhere in the codebase), so a stale-or-empty first visit
+// would be a confusing executive experience -- computeRoadmap is
+// explicitly documented as the caller-initiated write trigger, and
+// opening this workspace is exactly that, the same way opening a scan
+// is what triggers a scan.
 // ═══════════════════════════════════════════════════════════
 async function loadOpportunityRoadmap() {
   var statusEl = document.getElementById('ec-roadmap-status');
@@ -264,23 +425,61 @@ async function loadOpportunityRoadmap() {
 function roadmapCard(item) {
   var quickWinBadge = item.isQuickWin ? '<span class="ec-quick-win-badge">Quick Win™</span>' : '';
   var why = (item.explanation && item.explanation.whyRankedHere) || '';
+  var fb = item.factorBreakdown || {};
+  var priority = fb.priorityWeight && fb.priorityWeight.rawValue;
+  var difficulty = fb.difficulty && fb.difficulty.rawValue;
+  var minutes = fb.estimatedTime && fb.estimatedTime.rawValue;
+  var revenueImpact = fb.revenuePotential && fb.revenuePotential.rawValue;
+
+  var metaChips = '';
+  if (minutes != null) metaChips += '<span class="ec-meta-chip">' + esc(minutes) + ' min</span>';
+  if (revenueImpact) metaChips += '<span class="ec-meta-chip">Revenue Impact: ' + esc(titleCase(revenueImpact)) + '</span>';
+  if (difficulty) metaChips += '<span class="ec-meta-chip">Effort: ' + esc(titleCase(difficulty)) + '</span>';
+
   return (
     '<div class="ec-roadmap-card">' +
-      '<div class="ec-roadmap-card-title">' + esc(item.title) + quickWinBadge + '</div>' +
-      '<div class="ec-roadmap-card-score">Executive Opportunity Score™ — ' + esc(item.score) + '/100</div>' +
+      '<div class="ec-roadmap-card-top">' +
+        '<div class="ec-roadmap-card-title">' + esc(item.title) + quickWinBadge + '</div>' +
+        (priority ? '<span class="ec-priority-badge ' + priorityBadgeClass(priority) + '">' + esc(priority) + '</span>' : '') +
+      '</div>' +
       (why ? '<div class="ec-roadmap-card-why">' + esc(why) + '</div>' : '') +
+      (metaChips ? '<div class="ec-roadmap-card-meta">' + metaChips + '</div>' : '') +
+      '<div class="ec-roadmap-card-score-row">' +
+        '<div class="ec-score-bar"><div class="ec-score-bar-fill" style="width:' + Math.max(0, Math.min(100, item.score || 0)) + '%"></div></div>' +
+        '<span class="ec-score-num">' + esc(item.score) + '/100</span>' +
+      '</div>' +
     '</div>'
   );
 }
 
-function roadmapColumn(label, items) {
+function roadmapColumn(iconModifier, iconId, label, sub, items) {
   var cards = items.length
     ? items.map(roadmapCard).join('')
     : '<div class="ec-roadmap-col-empty">Nothing here right now.</div>';
   return (
     '<div>' +
-      '<div class="ec-roadmap-col-header"><span>' + esc(label) + '</span><span class="ec-roadmap-col-count">' + items.length + '</span></div>' +
+      '<div class="ec-roadmap-col-header">' +
+        '<div class="ec-roadmap-col-label-group">' +
+          '<span class="ec-roadmap-col-icon ec-roadmap-col-icon--' + iconModifier + '" aria-hidden="true"><svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#' + iconId + '"></use></svg></span>' +
+          '<div><div class="ec-roadmap-col-label">' + esc(label) + '</div><div class="ec-roadmap-col-sub">' + esc(sub) + '</div></div>' +
+        '</div>' +
+        '<span class="ec-roadmap-col-count">' + items.length + '</span>' +
+      '</div>' +
       cards +
+    '</div>'
+  );
+}
+
+function quickWinTile(item) {
+  var fb = item.factorBreakdown || {};
+  var minutes = fb.estimatedTime && fb.estimatedTime.rawValue;
+  return (
+    '<div class="ec-quickwin-tile">' +
+      '<div class="ec-quickwin-icon" aria-hidden="true"><svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-trend-up"></use></svg></div>' +
+      '<div>' +
+        '<div class="ec-quickwin-title">' + esc(item.title) + '</div>' +
+        '<div class="ec-quickwin-meta">' + (minutes != null ? esc(minutes) + ' min · ' : '') + 'Quick Win™</div>' +
+      '</div>' +
     '</div>'
   );
 }
@@ -289,7 +488,14 @@ function renderOpportunityRoadmap(data) {
   var statusEl = document.getElementById('ec-roadmap-status');
   var bodyEl = document.getElementById('ec-roadmap-body');
   var roadmap = data.roadmap || { doNow: [], doNext: [], doLater: [], quickWins: [], all: [] };
+  var counts = data.counts || { total: roadmap.all.length, doNow: roadmap.doNow.length, doNext: roadmap.doNext.length, doLater: roadmap.doLater.length, quickWins: roadmap.quickWins.length };
   var metrics = data.metrics || {};
+
+  // KPI row -- real Opportunity Engine counts only.
+  document.getElementById('ec-kpi-total').textContent = counts.total;
+  document.getElementById('ec-kpi-quickwins').textContent = metrics.quickWinsCount != null ? metrics.quickWinsCount : counts.quickWins;
+  document.getElementById('ec-kpi-donow').textContent = counts.doNow;
+  document.getElementById('ec-kpi-resolved').textContent = metrics.resolvedThisMonth != null ? metrics.resolvedThisMonth : '—';
 
   statusEl.textContent = roadmap.all.length + ' Ranked';
 
@@ -298,16 +504,18 @@ function renderOpportunityRoadmap(data) {
     return;
   }
 
-  var metricsHtml = '<div class="ec-metrics-row">' +
-    '<span class="ec-metric"><strong>' + esc(metrics.quickWinsCount || 0) + '</strong> Quick Win' + (metrics.quickWinsCount === 1 ? '' : 's') + '</span>' +
-    (metrics.resolvedThisMonth != null ? '<span class="ec-metric"><strong>' + esc(metrics.resolvedThisMonth) + '</strong> resolved this month</span>' : '') +
+  bodyEl.innerHTML = '<div class="ec-roadmap-cols">' +
+    roadmapColumn('now', 'royalte-alert', 'Do Now', 'High impact · Do immediately', roadmap.doNow) +
+    roadmapColumn('next', 'royalte-clock', 'Do Next', 'Important · Next in line', roadmap.doNext) +
+    roadmapColumn('later', 'royalte-calendar', 'Do Later', 'Lower impact · Future opportunities', roadmap.doLater) +
   '</div>';
 
-  bodyEl.innerHTML = metricsHtml + '<div class="ec-roadmap-cols">' +
-    roadmapColumn('Do Now', roadmap.doNow) +
-    roadmapColumn('Do Next', roadmap.doNext) +
-    roadmapColumn('Do Later', roadmap.doLater) +
-  '</div>';
+  var quickWinsSection = document.getElementById('ec-quickwins-section');
+  var quickWinsBody = document.getElementById('ec-quickwins-body');
+  if (roadmap.quickWins.length > 0) {
+    quickWinsSection.hidden = false;
+    quickWinsBody.innerHTML = roadmap.quickWins.map(quickWinTile).join('');
+  }
 }
 
 if (_result.state === 'valid') {
