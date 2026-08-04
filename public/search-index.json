@@ -1,6 +1,15 @@
 {
-  "generatedAt": "2026-08-04T14:59:44.364Z",
+  "generatedAt": "2026-08-04T15:04:53.942Z",
   "articles": [
+    {
+      "slug": "metadata-mistakes-killing-royalties",
+      "title": "The 7 Metadata Mistakes That Could Be Costing You Music Royalties",
+      "excerpt": "Bad metadata can quietly cost artists their royalties. Learn the 7 most common mistakes—from ISRC errors to missing publisher info—and how to avoid them.",
+      "category": "Metadata",
+      "type": "blog",
+      "url": "/blog/metadata-mistakes-killing-royalties.html",
+      "publishDate": "2026-08-04"
+    },
     {
       "slug": "the-35-year-copyright-rule",
       "title": "The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back?",
