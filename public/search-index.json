@@ -1,6 +1,42 @@
 {
-  "generatedAt": "2026-08-04T00:40:29.756Z",
+  "generatedAt": "2026-08-04T00:45:00.473Z",
   "articles": [
+    {
+      "slug": "the-35-year-copyright-rule",
+      "title": "The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back?",
+      "excerpt": "Many artists believe they automatically regain music rights after 35 years. Learn what copyright termination actually means and how it really works.",
+      "category": "Publishing",
+      "type": "blog",
+      "url": "/blog/the-35-year-copyright-rule.html",
+      "publishDate": "2026-08-03"
+    },
+    {
+      "slug": "soundexchange-explained-for-artists",
+      "title": "What Is SoundExchange? (And Why Every Artist Should Understand Its Role)",
+      "excerpt": "SoundExchange administers specific digital performance royalties—often confused with a PRO. Learn what SoundExchange actually does for artists.",
+      "category": "SoundExchange",
+      "type": "blog",
+      "url": "/blog/soundexchange-explained-for-artists.html",
+      "publishDate": "2026-07-31"
+    },
+    {
+      "slug": "hidden-cost-of-bad-metadata",
+      "title": "The Hidden Cost of Bad Metadata: How One Wrong ISRC Could Cost You Thousands in Royalties",
+      "excerpt": "One wrong ISRC can quietly cost artists thousands in royalties. Learn how metadata errors happen and why your recording's Digital Identity matters.",
+      "category": "Metadata",
+      "type": "blog",
+      "url": "/blog/hidden-cost-of-bad-metadata.html",
+      "publishDate": "2026-07-29"
+    },
+    {
+      "slug": "ai-music-is-exploding-but-who-actually-owns-the-rights",
+      "title": "AI Music Is Exploding—But Who Actually Owns the Rights?",
+      "excerpt": "AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.",
+      "category": "AI Music",
+      "type": "blog",
+      "url": "/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html",
+      "publishDate": "2026-07-27"
+    },
     {
       "slug": "music-industry-runs-on-data",
       "title": "The Music Industry Runs on Data—Not Just Songs",

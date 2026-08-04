@@ -9,11 +9,11 @@
   "contentPath": "public/blog/soundexchange-explained-for-artists.html",
   "heroImagePath": null,
   "approvalStatus": "approved",
-  "publishStatus": "scheduled",
+  "publishStatus": "published",
   "publishDate": "2026-07-31",
-  "publishedAt": null,
+  "publishedAt": "2026-08-04T00:45:00.010Z",
   "articleVersion": 1,
   "createdAt": "2026-07-23T16:09:21Z",
-  "lastModified": "2026-08-04T00:40:28.682Z",
+  "lastModified": "2026-08-04T00:45:00.010Z",
   "sourcePr": 404
 }

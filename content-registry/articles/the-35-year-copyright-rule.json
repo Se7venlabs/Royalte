@@ -9,11 +9,11 @@
   "contentPath": "public/blog/the-35-year-copyright-rule.html",
   "heroImagePath": null,
   "approvalStatus": "approved",
-  "publishStatus": "scheduled",
+  "publishStatus": "published",
   "publishDate": "2026-08-03",
-  "publishedAt": null,
+  "publishedAt": "2026-08-04T00:45:00.320Z",
   "articleVersion": 1,
   "createdAt": "2026-07-23T16:09:50Z",
-  "lastModified": "2026-08-04T00:40:28.619Z",
+  "lastModified": "2026-08-04T00:45:00.320Z",
   "sourcePr": 405
 }

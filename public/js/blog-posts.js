@@ -71,41 +71,41 @@ const blogPosts = [
     title: "The 35-Year Copyright Rule: Can Artists Really Get Their Rights Back?",
     excerpt: "Many artists believe they automatically regain music rights after 35 years. Learn what copyright termination actually means and how it really works.",
     category: "Publishing",
-    date: null,
-    readTime: null,
+    date: "2026-08-03",
+    readTime: "5 min read",
     slug: "the-35-year-copyright-rule",
     url: "/blog/the-35-year-copyright-rule.html",
-    status: "coming_soon"
+    status: "live"
   },
   {
     title: "What Is SoundExchange? (And Why Every Artist Should Understand Its Role)",
     excerpt: "SoundExchange administers specific digital performance royalties—often confused with a PRO. Learn what SoundExchange actually does for artists.",
     category: "SoundExchange",
-    date: null,
-    readTime: null,
+    date: "2026-07-31",
+    readTime: "7 min read",
     slug: "soundexchange-explained-for-artists",
     url: "/blog/soundexchange-explained-for-artists.html",
-    status: "coming_soon"
+    status: "live"
   },
   {
     title: "The Hidden Cost of Bad Metadata: How One Wrong ISRC Could Cost You Thousands in Royalties",
     excerpt: "One wrong ISRC can quietly cost artists thousands in royalties. Learn how metadata errors happen and why your recording's Digital Identity matters.",
     category: "Metadata",
-    date: null,
-    readTime: null,
+    date: "2026-07-29",
+    readTime: "5 min read",
     slug: "hidden-cost-of-bad-metadata",
     url: "/blog/hidden-cost-of-bad-metadata.html",
-    status: "coming_soon"
+    status: "live"
   },
   {
     title: "AI Music Is Exploding—But Who Actually Owns the Rights?",
     excerpt: "AI-generated music is exploding, but ownership remains unclear. Learn who actually owns AI-created music and how to protect your rights as an artist.",
     category: "AI Music",
-    date: null,
-    readTime: null,
+    date: "2026-07-27",
+    readTime: "7 min read",
     slug: "ai-music-is-exploding-but-who-actually-owns-the-rights",
     url: "/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html",
-    status: "coming_soon"
+    status: "live"
   },
   {
     title: "The Music Industry Runs on Data—Not Just Songs",

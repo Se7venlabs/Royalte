@@ -18,6 +18,30 @@
        product page URLs above and below this region remain hand-maintained. -->
 <!-- CONTENT-PUBLISHING-ENGINE:SITEMAP_URLS:START -->
   <url>
+    <loc>https://royalte.ai/blog/the-35-year-copyright-rule.html</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://royalte.ai/blog/soundexchange-explained-for-artists.html</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://royalte.ai/blog/hidden-cost-of-bad-metadata.html</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://royalte.ai/blog/ai-music-is-exploding-but-who-actually-owns-the-rights.html</loc>
+    <lastmod>2026-08-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://royalte.ai/blog/music-industry-runs-on-data.html</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
