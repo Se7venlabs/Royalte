@@ -336,6 +336,15 @@ await test('getOpportunityRoadmap re-derives explanation at read time from store
   assert.ok(result.roadmap.all[0].explanation.whyRankedHere.length > 0);
 });
 
+await test('getOpportunityRoadmap exposes the Playbook Definition title directly -- a Phase 4C UI consumer must never duplicate a playbookId -> title mapping', async () => {
+  const supabase = makeMockSupabase();
+  const actions = [makeAction({ id: 'a1', playbook_id: 'test-quick-win', status: 'started' })];
+  await recomputeOpportunityRoadmap({ supabase, artistProfileId: 'artist-1', actions });
+  const result = await getOpportunityRoadmap({ supabase, artistProfileId: 'artist-1' });
+  assert.ok(result.roadmap.all[0].title, 'title must be present');
+  assert.notEqual(result.roadmap.all[0].title, 'test-quick-win', 'must be the human-readable definition title, not the raw playbookId');
+});
+
 await test('describeScoreHistoryEvent labels first score, band change, score-only change, and no-change distinctly', async () => {
   assert.ok(describeScoreHistoryEvent({ from_band: null, rank: 1, score: 90, band: 'DO_NOW', is_quick_win: false }).includes('Ranked #1'));
   assert.ok(describeScoreHistoryEvent({ from_band: 'DO_NEXT', band: 'DO_NOW', from_score: 60, score: 85, rank: 1 }).includes('Moved from DO_NEXT to DO_NOW'));

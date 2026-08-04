@@ -201,6 +201,13 @@ export async function getOpportunityRoadmap({ supabase, artistProfileId }) {
       return {
         actionId: row.action_id,
         playbookId: row.playbook_id,
+        // Exposes a fact the store already looks up (definition.title) --
+        // not new business logic. Without this, a Roadmap UI consumer
+        // would have to duplicate a playbookId -> title mapping
+        // client-side, which is exactly the kind of duplicate logic
+        // Phase 4C's own directive forbids, and would silently go stale
+        // the moment a new Playbook Definition is registered.
+        title: definition?.title || row.playbook_id,
         scoringVersion: row.scoring_version,
         score: row.score,
         band: row.band,
