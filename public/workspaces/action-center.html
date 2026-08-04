@@ -30,6 +30,19 @@
     .ec-section-sub { font-size: 11.5px; color: var(--mc-text-muted); }
     .ec-section-status { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--ws-accent-border); color: var(--ws-accent); background: var(--ws-accent-soft); }
     .ec-section-empty { margin-top: 12px; font-size: 12px; color: var(--mc-text-faint); line-height: 1.6; }
+    .ec-roadmap-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+    @media (max-width: 900px) { .ec-roadmap-cols { grid-template-columns: 1fr; } }
+    .ec-roadmap-col-header { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mc-text-muted); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    .ec-roadmap-col-count { color: var(--mc-text-faint); font-weight: 600; }
+    .ec-roadmap-card { border: 1px solid var(--mc-border); border-radius: 10px; padding: 12px 13px; background: var(--mc-surface-2); margin-bottom: 10px; }
+    .ec-roadmap-card-title { font-size: 12.5px; font-weight: 700; color: var(--mc-text); margin-bottom: 4px; }
+    .ec-roadmap-card-score { font-size: 10.5px; color: var(--mc-text-muted); }
+    .ec-roadmap-card-why { font-size: 11px; color: var(--mc-text-faint); line-height: 1.5; margin-top: 6px; }
+    .ec-quick-win-badge { display: inline-block; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.28); margin-left: 6px; }
+    .ec-roadmap-col-empty { font-size: 11px; color: var(--mc-text-faint); font-style: italic; }
+    .ec-metrics-row { display: flex; gap: 16px; margin-top: 4px; flex-wrap: wrap; }
+    .ec-metric { font-size: 11px; color: var(--mc-text-muted); }
+    .ec-metric strong { color: var(--mc-text); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -133,9 +146,9 @@
             <div class="ec-section-title">Executive Opportunity Roadmap™</div>
             <div class="ec-section-sub">Do Now · Do Next · Do Later · Quick Wins</div>
           </div>
-          <span class="ec-section-status">Phase 4C — PR #2</span>
+          <span class="ec-section-status" id="ec-roadmap-status">Loading…</span>
         </div>
-        <div class="ec-section-empty">Not yet wired to this workspace — the Executive Opportunity Engine™'s scoring and ranking data already exists; rendering it here is the next Phase 4C milestone.</div>
+        <div id="ec-roadmap-body"></div>
       </div>
 
       <div id="ec-timeline-section" class="ec-section">
@@ -189,18 +202,119 @@ if (_result.state !== 'valid') {
   if (_body) _body.style.opacity = '1';
 }
 
+function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
 // ═══════════════════════════════════════════════════════════
 // § 2 — INTELLIGENCE
-// Foundation PR (Phase 4C PR #1): no synthesis yet. Each section
-// above becomes a real §2/§3/§4 consumer of already-shipped Phase
-// 4A/4B data in its own dedicated PR -- see governance/ROADMAP.md.
+// Executive Opportunity Roadmap™ (Phase 4C PR #2). Consumes the
+// existing /api/opportunity-actions transport exactly as-is -- no
+// scoring, ranking, or band logic duplicated here; every card below
+// renders fields the Executive Opportunity Engine™ (Phase 4B) already
+// computed and persisted. POST {action:'computeRoadmap'} on load,
+// not GET-then-empty: this is the very first UI consumer of Phase 4B
+// (confirmed zero prior consumers anywhere in the codebase), so a
+// stale-or-empty first visit would be a confusing executive
+// experience -- computeRoadmap is explicitly documented as the
+// caller-initiated write trigger, and opening this workspace is
+// exactly that, the same way opening a scan is what triggers a scan.
 // ═══════════════════════════════════════════════════════════
+async function loadOpportunityRoadmap() {
+  var statusEl = document.getElementById('ec-roadmap-status');
+  var bodyEl = document.getElementById('ec-roadmap-body');
+
+  var accessToken = null;
+  try {
+    var supaMod = await import('/js/supabase-client.js');
+    var supabase = supaMod.getSupabase && supaMod.getSupabase();
+    if (supabase) {
+      var sessionResult = await supabase.auth.getSession();
+      accessToken = (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token) || null;
+    }
+  } catch (e) { /* proceed unauthenticated -- the endpoint will surface a 401 clearly */ }
+
+  if (!accessToken) {
+    statusEl.textContent = 'Sign In Required';
+    bodyEl.innerHTML = '<div class="ec-section-empty">Sign in to view your Executive Opportunity Roadmap™.</div>';
+    return;
+  }
+
+  try {
+    var resp = await fetch('/api/opportunity-actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + accessToken },
+      body: JSON.stringify({ action: 'computeRoadmap' }),
+    });
+    if (!resp.ok) {
+      var errBody = await resp.json().catch(function () { return {}; });
+      statusEl.textContent = 'Unavailable';
+      bodyEl.innerHTML = '<div class="ec-section-empty">' + esc(errBody.error || ('Roadmap request failed (status ' + resp.status + ').')) + '</div>';
+      return;
+    }
+    var data = await resp.json();
+    renderOpportunityRoadmap(data);
+  } catch (e) {
+    statusEl.textContent = 'Unavailable';
+    bodyEl.innerHTML = '<div class="ec-section-empty">Roadmap request failed. Please try again.</div>';
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // § 3 — PRESENTATION / § 4 — RENDER
-// Static in this foundation pass -- the four section shells above
-// are already in the DOM; nothing to compute or write yet.
 // ═══════════════════════════════════════════════════════════
+function roadmapCard(item) {
+  var quickWinBadge = item.isQuickWin ? '<span class="ec-quick-win-badge">Quick Win™</span>' : '';
+  var why = (item.explanation && item.explanation.whyRankedHere) || '';
+  return (
+    '<div class="ec-roadmap-card">' +
+      '<div class="ec-roadmap-card-title">' + esc(item.title) + quickWinBadge + '</div>' +
+      '<div class="ec-roadmap-card-score">Executive Opportunity Score™ — ' + esc(item.score) + '/100</div>' +
+      (why ? '<div class="ec-roadmap-card-why">' + esc(why) + '</div>' : '') +
+    '</div>'
+  );
+}
+
+function roadmapColumn(label, items) {
+  var cards = items.length
+    ? items.map(roadmapCard).join('')
+    : '<div class="ec-roadmap-col-empty">Nothing here right now.</div>';
+  return (
+    '<div>' +
+      '<div class="ec-roadmap-col-header"><span>' + esc(label) + '</span><span class="ec-roadmap-col-count">' + items.length + '</span></div>' +
+      cards +
+    '</div>'
+  );
+}
+
+function renderOpportunityRoadmap(data) {
+  var statusEl = document.getElementById('ec-roadmap-status');
+  var bodyEl = document.getElementById('ec-roadmap-body');
+  var roadmap = data.roadmap || { doNow: [], doNext: [], doLater: [], quickWins: [], all: [] };
+  var metrics = data.metrics || {};
+
+  statusEl.textContent = roadmap.all.length + ' Ranked';
+
+  if (roadmap.all.length === 0) {
+    bodyEl.innerHTML = '<div class="ec-section-empty">No rankable Playbook Actions yet — start a Guided Playbook from AI Insights™ to build your Executive Opportunity Roadmap™.</div>';
+    return;
+  }
+
+  var metricsHtml = '<div class="ec-metrics-row">' +
+    '<span class="ec-metric"><strong>' + esc(metrics.quickWinsCount || 0) + '</strong> Quick Win' + (metrics.quickWinsCount === 1 ? '' : 's') + '</span>' +
+    (metrics.resolvedThisMonth != null ? '<span class="ec-metric"><strong>' + esc(metrics.resolvedThisMonth) + '</strong> resolved this month</span>' : '') +
+  '</div>';
+
+  bodyEl.innerHTML = metricsHtml + '<div class="ec-roadmap-cols">' +
+    roadmapColumn('Do Now', roadmap.doNow) +
+    roadmapColumn('Do Next', roadmap.doNext) +
+    roadmapColumn('Do Later', roadmap.doLater) +
+  '</div>';
+}
+
+if (_result.state === 'valid') {
+  loadOpportunityRoadmap();
+} else {
+  document.getElementById('ec-roadmap-status').textContent = 'No Scan';
+}
 </script>
 </body>
 </html>
