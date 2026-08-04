@@ -118,6 +118,23 @@ from Apple Production Migration (PR #189, 2026-07-02).
 
 ## What's Live in `main` Today
 
+### Content Approval Center™ — Phase 1
+### Status: COMPLETE
+
+**COMPLETE** (2026-08-04, PR #466 implementation; PR #469 audit-visibility hotfix; PR #475/#476 backlog content clearance): replaces GitHub-dependent editorial approval with a secure, email-first executive workflow, built on top of the already-certified **Content Publishing Engine™** (see `governance/CONTENT_PUBLISHING_ROOT_CAUSE_REPORT.md`, `governance/CONTENT_PUBLISHING_FINAL_CERTIFICATION.md`). Once an article's publishing window arrives (or is found overdue), the Engine emails a signed, single-use **Executive Approval Email™** to `info@royalte.ai`; clicking Approve or Reject is what advances the registry's `approvalStatus`, never a hand-edited PR.
+
+**Architecture** (full detail: `governance/CONTENT_APPROVAL_CENTER_ARCHITECTURE.md`): `api/content/decide.js`, a live, stateless Vercel endpoint, never touches git. It writes to two new Supabase tables (`content_approval_requests`, append-only `content_approval_audit_log`, both RLS-enabled with zero client policies) and fires a `workflow_dispatch` at `scheduled-publish.yml`, which reconciles the decision into the registry through a new `sync-approvals.mjs` step using the same `saveArticle()`/`appendHistory()` calls the Engine already used — exactly one place in the system ever writes to the registry via git, unchanged from before this phase. No second scheduler, no second publishing path.
+
+**Secure Approval Tokens™**: HMAC-SHA256 (`scripts/content-publishing/approval-tokens.mjs`, hand-rolled on Node's built-in `crypto`, no dependency), single-use via an atomic `UPDATE ... WHERE status='pending' AND used_at IS NULL` guard, GET (non-mutating confirm page, safe against email-client link prescanning) then POST (the real decision) rather than one link doing everything, 7-day expiry, a server-stored `nonce` cross-checked independently of the HMAC signature.
+
+**Executive Audit Trail™**: append-only, every attempt logged — approved, rejected, viewed, expired, replayed, invalid signature — not just successes. A real production defect was found and fixed during certification: the audit table appeared completely empty because `article_slug` was `NOT NULL` while every verification-failure path passed `slug: null`, so the insert silently failed a database constraint on every single invalid-link attempt. Fixed (PR #469): the column is now nullable (never fabricated), `logAudit()` checks and always surfaces Supabase errors, and a new `decodeTokenUnsafe()` extracts audit context from a token without ever trusting its signature for authorization.
+
+**Executive Visibility Rule™** (six notification types, no dashboard — explicitly ruled out by the Board and replaced by a Monday-morning **Weekly Executive Publishing Summary**, `weekly-digest.yml`): Approval Required, Article Approved, Publishing Started, Publishing Success (with a live published-article count and Publication History confirmation), Publishing Failure, Weekly Summary.
+
+**Live-certified against real production articles, not simulated data**: the 4 real backlog articles stuck since the original Content Publishing Engine incident (#402–#405) were the actual first workload. Found and resolved live: a `SUPABASE_URL` GitHub secret that silently hadn't saved (same class of failure as the earlier `CONTENT_PUBLISHING_PAT` incident), a `CONTENT_APPROVAL_TOKEN_SECRET` mismatch between GitHub Actions and Vercel (root-caused via audit evidence, not assumption, once the audit-visibility fix made that evidence exist), and the 4 backlog articles' own content PRs — genuinely unmergeable against the redesigned `main` (`mergeable_state: dirty`) since they predated the Engine's marker-region-generated files — resolved by extracting only each article's new HTML + hero image (PR #475), never their stale edits to now-Engine-owned files. All 4 articles are live: real HTTP 200 URLs, confirmed present in `rss.xml` and `search-index.json`, complete Publication History (`approval_requested → approval_synced → published`) for every article.
+
+**One item deliberately left open, not blocking Phase 1 certification**: `CONTENT_PUBLISHING_PAT` in Vercel returns `401 Bad Credentials` when `api/content/decide.js` attempts its post-approval `workflow_dispatch` — approvals still record correctly and are picked up by the next scheduled run regardless, but "publish immediately after approval" (ECR-001) is not yet restored. Tracked as an immediate post-closeout hotfix, not a Phase 1 defect.
+
 ### Phase 4 — Executive Actions™
 ### Status: Slice 4B COMPLETE
 
