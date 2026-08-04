@@ -113,14 +113,20 @@
     .ec-quickwin-title { font-size: 12px; font-weight: 700; color: var(--mc-text); line-height: 1.3; }
     .ec-quickwin-meta { font-size: 10.5px; color: var(--mc-text-faint); margin-top: 2px; }
 
-    /* ── Roadmap module cards (Progress / Playbooks — not yet wired) ────── */
-    .ec-modules-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    @media (max-width: 900px) { .ec-modules-row { grid-template-columns: 1fr; } }
+    /* ── Roadmap module cards (Playbooks — not yet wired) ────────────────── */
+    .ec-modules-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 
     /* ── Timeline cards (extends .ec-roadmap-card with status + dependencies) */
     .ec-timeline-status-badge { font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; white-space: nowrap; color: var(--mc-text-muted); background: var(--mc-surface-3); border: 1px solid var(--mc-border); }
     .ec-timeline-deps { font-size: 10.5px; color: var(--mc-text-faint); line-height: 1.5; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--mc-border); }
     .ec-timeline-deps strong { color: var(--mc-text-muted); font-weight: 700; }
+
+    /* ── Executive Progress ───────────────────────────────────────────── */
+    .ec-progress-pct-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+    .ec-progress-pct-num { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; color: var(--ws-accent); }
+    .ec-progress-pct-label { font-size: 12px; color: var(--mc-text-muted); }
+    .ec-progress-bar { height: 8px; border-radius: 4px; background: var(--mc-surface-3); overflow: hidden; margin-bottom: 20px; }
+    .ec-progress-bar-fill { height: 100%; background: var(--ws-accent); border-radius: 4px; transition: width .3s ease; }
     .ec-module-card { border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface); padding: 18px; }
     .ec-module-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--ws-accent-soft); border: 1px solid var(--ws-accent-border); color: var(--ws-accent); margin-bottom: 12px; }
     .ec-module-icon svg { width: 19px; height: 19px; }
@@ -326,17 +332,29 @@
         <div id="ec-timeline-body"></div>
       </div>
 
-      <!-- § ROADMAP MODULES — Progress / Playbooks (not yet wired) ─────── -->
-      <div class="ec-modules-row">
-        <div id="ec-progress-section" class="ec-module-card">
-          <div class="ec-module-icon" aria-hidden="true">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-performance"></use></svg>
+      <!-- § EXECUTIVE PROGRESS — sole data source is the existing, already-
+           certified getPlaybookCounts() (Phase 4A), consumed via the
+           existing GET /api/playbook-actions endpoint. No new backend,
+           no new API, no estimated/derived metrics beyond a completion
+           percentage computed directly from real totals. ─────────────── -->
+      <div id="ec-progress-section" class="ec-section">
+        <div class="ec-section-header">
+          <div class="ec-section-title-row">
+            <div class="ec-section-icon" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-performance"></use></svg>
+            </div>
+            <div>
+              <div class="ec-section-title">Executive Progress™</div>
+              <div class="ec-section-sub">How far along you are</div>
+            </div>
           </div>
-          <div class="ec-module-title">Executive Progress™</div>
-          <div class="ec-module-desc">Track your progress and see your business health improve over time.</div>
-          <span class="ec-section-status">Coming in PR #4</span>
+          <span class="ec-section-status" id="ec-progress-status">Loading…</span>
         </div>
+        <div id="ec-progress-body"></div>
+      </div>
 
+      <!-- § ROADMAP MODULES — Playbooks (not yet wired) ─────────────────── -->
+      <div class="ec-modules-row">
         <div id="ec-playbooks-section" class="ec-module-card">
           <div class="ec-module-icon" aria-hidden="true">
             <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-collection"></use></svg>
@@ -615,11 +633,106 @@ function renderOpportunityRoadmap(data) {
   renderExecutiveTimeline(roadmap);
 }
 
+// ═══════════════════════════════════════════════════════════
+// § 2c — Executive Progress™ (Phase 4C PR #4). Sole data source is
+// getPlaybookCounts() (Phase 4A, already certified) via the existing
+// GET /api/playbook-actions endpoint -- no new backend, no new API,
+// no duplicate calculation. This is a different table/endpoint than
+// the Roadmap/Timeline sections above (playbook_actions status counts,
+// not opportunity_scores), so it fetches independently rather than
+// reusing their response -- there is nothing to share; these are two
+// genuinely different already-existing, already-certified reads.
+// The only number computed client-side is a completion percentage
+// derived directly from real totals (Board-approved: "if a completion
+// percentage can be calculated directly from existing totals, that is
+// acceptable") -- never an estimate, trend, or projection.
+// ═══════════════════════════════════════════════════════════
+function progressStatTile(iconColor, iconId, label, value) {
+  return (
+    '<div class="hi-kpi-card">' +
+      '<div class="hi-kpi-label hi-kpi-label--' + iconColor + '">' + esc(label) + '</div>' +
+      '<div class="hi-kpi-icon-wrap hi-kpi-icon-wrap--' + iconColor + '" aria-hidden="true"><svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#' + iconId + '"></use></svg></div>' +
+      '<div class="ii-kpi-num-row"><span class="ii-kpi-big-num">' + esc(value) + '</span></div>' +
+    '</div>'
+  );
+}
+
+function renderExecutiveProgress(counts) {
+  var statusEl = document.getElementById('ec-progress-status');
+  var bodyEl = document.getElementById('ec-progress-body');
+  var total = counts.total || 0;
+
+  statusEl.textContent = total + ' Tracked';
+
+  if (total === 0) {
+    bodyEl.innerHTML = '<div class="ec-section-empty">No Playbook Actions recommended yet — start a Guided Playbook from AI Insights™ to begin tracking progress.</div>';
+    return;
+  }
+
+  var resolved = (counts.completed || 0) + (counts.verified || 0);
+  var active = counts.active != null ? counts.active : (counts.started || 0) + (counts.in_progress || 0);
+  var remaining = Math.max(0, total - resolved - (counts.archived || 0));
+  var pct = Math.round((resolved / total) * 100);
+
+  bodyEl.innerHTML =
+    '<div class="ec-progress-pct-row">' +
+      '<span class="ec-progress-pct-num">' + pct + '%</span>' +
+      '<span class="ec-progress-pct-label">of recommended actions completed</span>' +
+    '</div>' +
+    '<div class="ec-progress-bar"><div class="ec-progress-bar-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="hi-kpi-row">' +
+      progressStatTile('purple', 'royalte-signal', 'Total Recommended', total) +
+      progressStatTile('green', 'royalte-verified', 'Completed &amp; Verified', resolved) +
+      progressStatTile('orange', 'royalte-clock', 'Active / In Progress', active) +
+      progressStatTile('blue', 'royalte-calendar', 'Remaining', remaining) +
+    '</div>';
+}
+
+async function loadExecutiveProgress() {
+  var statusEl = document.getElementById('ec-progress-status');
+  var bodyEl = document.getElementById('ec-progress-body');
+
+  var accessToken = null;
+  try {
+    var supaMod = await import('/js/supabase-client.js');
+    var supabase = supaMod.getSupabase && supaMod.getSupabase();
+    if (supabase) {
+      var sessionResult = await supabase.auth.getSession();
+      accessToken = (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.access_token) || null;
+    }
+  } catch (e) { /* proceed unauthenticated -- the endpoint will surface a 401 clearly */ }
+
+  if (!accessToken) {
+    statusEl.textContent = 'Sign In Required';
+    bodyEl.innerHTML = '<div class="ec-section-empty">Sign in to view your Executive Progress™.</div>';
+    return;
+  }
+
+  try {
+    var resp = await fetch('/api/playbook-actions', {
+      headers: { 'Authorization': 'Bearer ' + accessToken },
+    });
+    if (!resp.ok) {
+      var errBody = await resp.json().catch(function () { return {}; });
+      statusEl.textContent = 'Unavailable';
+      bodyEl.innerHTML = '<div class="ec-section-empty">' + esc(errBody.error || ('Progress request failed (status ' + resp.status + ').')) + '</div>';
+      return;
+    }
+    var data = await resp.json();
+    renderExecutiveProgress(data.counts || { total: 0 });
+  } catch (e) {
+    statusEl.textContent = 'Unavailable';
+    bodyEl.innerHTML = '<div class="ec-section-empty">Progress request failed. Please try again.</div>';
+  }
+}
+
 if (_result.state === 'valid') {
   loadOpportunityRoadmap();
+  loadExecutiveProgress();
 } else {
   document.getElementById('ec-roadmap-status').textContent = 'No Scan';
   document.getElementById('ec-timeline-status').textContent = 'No Scan';
+  document.getElementById('ec-progress-status').textContent = 'No Scan';
 }
 </script>
 </body>
