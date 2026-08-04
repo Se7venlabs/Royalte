@@ -23,7 +23,8 @@
 // publishing path."
 
 import { createClient } from '@supabase/supabase-js';
-import { verifyToken } from '../../scripts/content-publishing/approval-tokens.mjs';
+import { verifyToken, decodeTokenUnsafe } from '../../scripts/content-publishing/approval-tokens.mjs';
+import { logAudit, resolveAuditSlug } from '../../scripts/content-publishing/approval-audit.mjs';
 import { sendDecisionConfirmEmail } from '../../scripts/content-publishing/approval-mailer.mjs';
 import { extractIp } from '../_lib/rate-limit.js';
 
@@ -58,14 +59,6 @@ function page(title, bodyHtml) {
   .reject{background:#ff5c7a;color:#2a0710;}
 </style></head>
 <body><div class="card">${bodyHtml}</div></body></html>`;
-}
-
-async function logAudit(supabase, { requestId, slug, event, recipientEmail, ip, userAgent, previousStatus, newStatus, detail }) {
-  await supabase.from('content_approval_audit_log').insert({
-    request_id: requestId || null, article_slug: slug, event,
-    recipient_email: recipientEmail || null, ip: ip || null, user_agent: userAgent || null,
-    previous_status: previousStatus || null, new_status: newStatus || null, detail: detail || null,
-  });
 }
 
 async function fireWorkflowDispatch() {
@@ -110,11 +103,21 @@ export default async function handler(req, res) {
 
   if (!verified.valid) {
     // Security Review (Objective 15): every invalid/expired/tampered
-    // attempt is logged, not just successes.
+    // attempt is logged, not just successes -- and with as much safe
+    // context as can be determined, not just "something failed."
+    // decodeTokenUnsafe reads the requestId/action WITHOUT trusting the
+    // signature (it is never used for any authorization decision here,
+    // only to look up the real article -- resolveAuditSlug -- from the
+    // trusted Supabase row). If the payload can't even be decoded, both
+    // stay null rather than being fabricated.
+    const unsafe = decodeTokenUnsafe(token);
+    const slug = await resolveAuditSlug(supabase, unsafe?.requestId);
     await logAudit(supabase, {
-      requestId: verified.payload?.requestId, slug: null,
+      requestId: unsafe?.requestId || null,
+      slug,
       event: verified.reason === 'expired' ? 'expired_attempt' : 'invalid_signature',
       ip: extractIp(req), userAgent: req.headers['user-agent'],
+      detail: `verification failed: ${verified.reason}${unsafe?.action ? `; attempted action: ${unsafe.action}` : ''}`,
     });
     const message = verified.reason === 'expired'
       ? 'This approval link has expired.'
@@ -131,7 +134,11 @@ export default async function handler(req, res) {
     .maybeSingle();
 
   if (fetchError || !requestRow || requestRow.nonce !== verified.payload.nonce) {
-    await logAudit(supabase, { requestId, slug: requestRow?.article_slug || null, event: 'invalid_signature', ip: extractIp(req), userAgent: req.headers['user-agent'], detail: 'nonce mismatch or request not found' });
+    await logAudit(supabase, {
+      requestId, slug: requestRow?.article_slug || null, event: 'invalid_signature',
+      ip: extractIp(req), userAgent: req.headers['user-agent'],
+      detail: `nonce mismatch or request not found; attempted action: ${action}`,
+    });
     return res.status(410).send(page('Link No Longer Valid', '<h1>Link No Longer Valid</h1><p>This approval link could not be verified.</p>'));
   }
 

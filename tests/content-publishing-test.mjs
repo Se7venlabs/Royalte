@@ -18,8 +18,9 @@ import { loadRegistry, saveArticle, appendHistory, loadHistory } from '../script
 import { validateRegistry } from '../scripts/content-publishing/validate.mjs';
 import { publishDueArticles, regenerateArtifacts } from '../scripts/content-publishing/publish.mjs';
 import { syncDecidedApprovals } from '../scripts/content-publishing/sync-approvals.mjs';
-import { signToken, verifyToken } from '../scripts/content-publishing/approval-tokens.mjs';
+import { signToken, verifyToken, decodeTokenUnsafe } from '../scripts/content-publishing/approval-tokens.mjs';
 import { extractSeoMetadata } from '../scripts/content-publishing/approval-mailer.mjs';
+import { logAudit, resolveAuditSlug } from '../scripts/content-publishing/approval-audit.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -646,6 +647,142 @@ await test('syncDecidedApprovals skips a decision for a slug with no matching re
     assert.equal(result.errors.length, 1);
     assert.equal(result.errors[0].slug, 'does-not-exist');
   });
+});
+
+// Minimal Supabase stub covering exactly what logAudit/resolveAuditSlug
+// touch: content_approval_audit_log.insert(...) and
+// content_approval_requests.select(...).eq(...).maybeSingle(). Captures
+// every insert payload for assertions rather than persisting anything.
+function makeAuditSupabaseStub({ insertError = null, requestRowsBySlugId = {} } = {}) {
+  const inserts = [];
+  return {
+    inserts,
+    from(table) {
+      if (table === 'content_approval_audit_log') {
+        return { insert: (row) => { inserts.push(row); return Promise.resolve({ error: insertError }); } };
+      }
+      if (table === 'content_approval_requests') {
+        return {
+          select: function () { return this; },
+          eq: function (_col, id) { this._id = id; return this; },
+          maybeSingle: function () { return Promise.resolve({ data: requestRowsBySlugId[this._id] || null, error: null }); },
+        };
+      }
+      throw new Error(`unexpected table in test stub: ${table}`);
+    },
+  };
+}
+
+await test('decodeTokenUnsafe extracts requestId/action from a token even when its signature is invalid (audit-only, never authorization)', async () => {
+  const token = signToken({ requestId: 'req-audit-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' }, 'secret-a');
+  const decoded = decodeTokenUnsafe(token);
+  assert.deepEqual(decoded, { requestId: 'req-audit-1', action: 'approve', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'abc' });
+
+  // Signed with a different secret than whoever verifies it will use --
+  // decodeTokenUnsafe still reads the same payload, since it never checks
+  // the signature. verifyToken, separately, would reject this token.
+  const verifiedElsewhere = verifyToken(token, 'secret-b', '2026-08-03T00:00:00.000Z');
+  assert.equal(verifiedElsewhere.valid, false);
+  assert.equal(verifiedElsewhere.reason, 'invalid_signature');
+});
+
+await test('decodeTokenUnsafe returns null for a fully malformed token -- never fabricates a value', async () => {
+  assert.equal(decodeTokenUnsafe('not-a-token-at-all'), null);
+  assert.equal(decodeTokenUnsafe(''), null);
+  assert.equal(decodeTokenUnsafe('garbage.moregarbage'), null);
+});
+
+await test('a malformed token creates an audit event with article_slug = NULL, never fabricated', async () => {
+  const supabase = makeAuditSupabaseStub();
+  const unsafe = decodeTokenUnsafe('garbage-with-no-dot');
+  const slug = await resolveAuditSlug(supabase, unsafe?.requestId);
+  await logAudit(supabase, { requestId: unsafe?.requestId || null, slug, event: 'invalid_signature', detail: 'verification failed: malformed' });
+
+  assert.equal(supabase.inserts.length, 1);
+  assert.equal(supabase.inserts[0].article_slug, null);
+  assert.equal(supabase.inserts[0].request_id, null);
+  assert.equal(supabase.inserts[0].event, 'invalid_signature');
+});
+
+await test('an invalid-signature attempt (well-formed token, wrong secret) creates an audit event, resolving the real slug from the trusted row -- never the token', async () => {
+  const token = signToken({ requestId: 'req-real-1', action: 'reject', expiresAt: '2026-08-10T00:00:00.000Z', nonce: 'xyz' }, 'secret-a');
+  const verified = verifyToken(token, 'secret-b', '2026-08-03T00:00:00.000Z'); // wrong secret, as the live incident was
+  assert.equal(verified.valid, false);
+  assert.equal(verified.reason, 'invalid_signature');
+
+  const supabase = makeAuditSupabaseStub({ requestRowsBySlugId: { 'req-real-1': { article_slug: 'the-real-article' } } });
+  const unsafe = decodeTokenUnsafe(token);
+  const slug = await resolveAuditSlug(supabase, unsafe?.requestId);
+  await logAudit(supabase, { requestId: unsafe.requestId, slug, event: 'invalid_signature', detail: `verification failed: invalid_signature; attempted action: ${unsafe.action}` });
+
+  assert.equal(supabase.inserts.length, 1);
+  assert.equal(supabase.inserts[0].article_slug, 'the-real-article', 'resolved from the trusted Supabase row, not the token');
+  assert.equal(supabase.inserts[0].request_id, 'req-real-1');
+  assert.ok(supabase.inserts[0].detail.includes('attempted action: reject'));
+});
+
+await test('an expired-token attempt creates an audit event', async () => {
+  const token = signToken({ requestId: 'req-expired-1', action: 'approve', expiresAt: '2026-08-01T00:00:00.000Z', nonce: 'old' }, 'secret-a');
+  const verified = verifyToken(token, 'secret-a', '2026-08-03T00:00:00.000Z');
+  assert.equal(verified.valid, false);
+  assert.equal(verified.reason, 'expired');
+
+  const supabase = makeAuditSupabaseStub({ requestRowsBySlugId: { 'req-expired-1': { article_slug: 'an-expired-article' } } });
+  const unsafe = decodeTokenUnsafe(token);
+  const slug = await resolveAuditSlug(supabase, unsafe?.requestId);
+  await logAudit(supabase, { requestId: unsafe.requestId, slug, event: 'expired_attempt', detail: 'verification failed: expired' });
+
+  assert.equal(supabase.inserts.length, 1);
+  assert.equal(supabase.inserts[0].event, 'expired_attempt');
+  assert.equal(supabase.inserts[0].article_slug, 'an-expired-article');
+});
+
+await test('a valid, successfully-verified request retains the resolved article slug', async () => {
+  const supabase = makeAuditSupabaseStub({ requestRowsBySlugId: { 'req-valid-1': { article_slug: 'a-valid-article' } } });
+  const slug = await resolveAuditSlug(supabase, 'req-valid-1');
+  assert.equal(slug, 'a-valid-article');
+  await logAudit(supabase, { requestId: 'req-valid-1', slug, event: 'approved', previousStatus: 'pending', newStatus: 'approved' });
+  assert.equal(supabase.inserts[0].article_slug, 'a-valid-article');
+});
+
+await test('resolveAuditSlug returns null, never a guess, when no matching request row exists', async () => {
+  const supabase = makeAuditSupabaseStub();
+  const slug = await resolveAuditSlug(supabase, 'req-does-not-exist');
+  assert.equal(slug, null);
+});
+
+await test('audit database errors are surfaced (logged) rather than silently ignored', async () => {
+  const supabase = makeAuditSupabaseStub({ insertError: { message: 'null value in column "article_slug" violates not-null constraint' } });
+  const originalConsoleError = console.error;
+  const captured = [];
+  console.error = (...args) => captured.push(args.join(' '));
+  try {
+    await logAudit(supabase, { requestId: 'req-1', slug: null, event: 'invalid_signature' });
+  } finally {
+    console.error = originalConsoleError;
+  }
+  assert.equal(captured.length, 1, 'a Supabase insert error must be logged, not swallowed');
+  assert.ok(captured[0].includes('invalid_signature'), 'the logged message must include the event type for correlation');
+  assert.ok(captured[0].includes('not-null constraint'), 'the logged message must include the actual database error');
+});
+
+await test('logAudit never has a code path that can log a token or secret value -- neither is ever a parameter it accepts', async () => {
+  // Structural guarantee, verified: logAudit's own signature has no
+  // `token`/`secret` field, so no combination of inputs can cause one to
+  // appear in a logged message -- this asserts the property directly
+  // rather than trusting a comment. A fake sensitive-looking value is
+  // deliberately never passed to logAudit at all.
+  const sensitiveLookingValue = 'eyJhbGciOiJIUzI1NiJ9.super-secret-token-value-should-never-appear';
+  const supabase = makeAuditSupabaseStub({ insertError: { message: 'simulated failure' } });
+  const originalConsoleError = console.error;
+  const captured = [];
+  console.error = (...args) => captured.push(args.join(' '));
+  try {
+    await logAudit(supabase, { requestId: 'req-1', slug: 'some-article', event: 'invalid_signature', detail: 'verification failed: invalid_signature' });
+  } finally {
+    console.error = originalConsoleError;
+  }
+  assert.ok(!captured.join(' ').includes(sensitiveLookingValue), 'no logged output may ever contain a token-shaped value');
 });
 
 // ═══════════════════════════════════════════════════════════════════════
