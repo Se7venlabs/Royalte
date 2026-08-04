@@ -34,8 +34,12 @@ New `.ws-dept--action-center` accent (`public/css/royalte-workspace.css`) uses `
 
 | PR | Deliverable | Depends on |
 |---|---|---|
-| #2 | Executive Opportunity Roadmap™ — render Do Now/Next/Later + Quick Wins | 4B's `opportunity-scoring-engine.js`/`opportunity-store.js` (already complete, unmodified) |
-| #3 | Executive Timeline™ | Likely = surfacing 4A's existing Automatic Executive Timeline (`describeHistoryEvent()`), not new logic — to be confirmed during implementation, not assumed |
+| #2 | Executive Opportunity Roadmap™ — render Do Now/Next/Later + Quick Wins | 4B's `opportunity-scoring-engine.js`/`opportunity-store.js` (already complete, unmodified) — **COMPLETE**, PR #485 |
+| #3 | Executive Timeline™ | **Resolved during implementation** (confirmed, not assumed, per the note this row previously carried): this is a forward execution plan over Phase 4B's ranked Opportunity Roadmap — `roadmap.doNow/doNext/doLater` reused as-is, no second API call, no new grouping logic (see § below). It is a *different* feature from Phase 4A's existing "Automatic Executive Timeline™" (`describeHistoryEvent()`/`playbook_action_history`), which remains a historical audit log of past status transitions, still unwired to any UI — the similar name is coincidental, not a merge of the two. |
 | #4 | Executive Progress™ | Scope undefined anywhere in governance — implementation must stop and return to the Board if it remains undefined after technical review, per the Board's own directive |
 | #5 | Guided Playbooks™ expansion | A 3rd real Playbook Definition, following the existing `api/playbooks/definitions/*.js` pattern exactly |
 | #6 | Executive Certification | Full regression, live Executive Board Certification Walkthrough™, documentation, merge |
+
+### PR #3 — Executive Timeline™ windowing decision
+
+The Board's brief suggested five time windows ("Immediate / Today / This Week / Next Week / Future"). Implemented as three — **Immediate / Upcoming / Future** — mapped 1:1 onto the Scoring Engine's existing `DO_NOW`/`DO_NEXT`/`DO_LATER` bands, in the same `rank` order the engine already produces. There is no per-action due-date, scheduling field, or day/week time estimate anywhere in the backend — only the three-value band. Forcing five buckets out of three real values would require either arbitrarily slicing a band by array position (fabricated ordering) or inventing a time estimate that doesn't exist, both excluded by the phase's own "no fabricated data" / "do not hard-code the ordering" directives. Two fields new to the roadmap item shape were added to `getOpportunityRoadmap()` (`api/_lib/opportunity-store.js`), both exposing existing facts rather than new logic: `status` (a read-only cross-reference to `playbook_actions.status`, same precedent as `getOpportunityDashboardMetrics`'s `resolvedThisMonth` query) and `prerequisites` (already present on the Playbook Definition, already loaded via `getPlaybook()`).

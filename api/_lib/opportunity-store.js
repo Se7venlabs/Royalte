@@ -195,6 +195,28 @@ export async function getOpportunityRoadmap({ supabase, artistProfileId }) {
       return { ok: false, error: 'read failed', roadmap: null, counts: null };
     }
 
+    // Executive Timeline™ (Phase 4C PR #3) needs each item's current
+    // Playbook Action status ('started', 'in_progress', etc.) -- a fact
+    // opportunity_scores itself doesn't carry, since Stable Opportunity
+    // Identity™ means action_id IS the playbook_actions.id, not a copy of
+    // its status. Read-only cross-reference of the Playbook Action
+    // Engine's OWN table, same precedent as getOpportunityDashboardMetrics's
+    // resolvedThisMonth query below -- Canonical Ownership of
+    // playbook_actions stays with api/_lib/playbook-action-store.js; this
+    // store never writes it.
+    const actionIds = (data || []).map(r => r.action_id);
+    let statusByActionId = {};
+    if (actionIds.length > 0) {
+      const { data: actionRows, error: actionsErr } = await supabase
+        .from('playbook_actions')
+        .select('id, status')
+        .eq('artist_profile_id', artistProfileId)
+        .in('id', actionIds);
+      if (!actionsErr) {
+        statusByActionId = Object.fromEntries((actionRows || []).map(r => [r.id, r.status]));
+      }
+    }
+
     const all = (data || []).map(row => {
       const definition = getPlaybook(row.playbook_id) || null;
       const scoredForExplain = { score: row.score, band: row.band, isQuickWin: row.is_quick_win, factorBreakdown: row.factor_breakdown };
@@ -208,6 +230,15 @@ export async function getOpportunityRoadmap({ supabase, artistProfileId }) {
         // Phase 4C's own directive forbids, and would silently go stale
         // the moment a new Playbook Definition is registered.
         title: definition?.title || row.playbook_id,
+        // Real Playbook Action lifecycle status (see cross-reference above).
+        // null only if the join genuinely found nothing -- honest
+        // degradation, never fabricated as e.g. 'available'.
+        status: statusByActionId[row.action_id] ?? null,
+        // Definition.prerequisites already exists (Phase 4A) and is
+        // already loaded on `definition` above -- exposing it here is the
+        // same "expose an existing fact" pattern as title, for Executive
+        // Timeline™'s honest "Dependencies (when applicable)" field.
+        prerequisites: definition?.prerequisites || [],
         scoringVersion: row.scoring_version,
         score: row.score,
         band: row.band,
