@@ -89,6 +89,7 @@
 .ws-dept--backend    { --ws-accent: var(--mc-teal);    --ws-accent-soft: var(--mc-teal-soft);            --ws-accent-border: var(--mc-border-teal);   --ws-accent-glow: var(--mc-teal-glow); }
 .ws-dept--ai-insights { --ws-accent: var(--mc-purple); --ws-accent-soft: var(--mc-purple-soft);          --ws-accent-border: var(--mc-border-warm);   --ws-accent-glow: var(--mc-purple-glow); }
 .ws-dept--monitoring  { --ws-accent: var(--mc-blue);   --ws-accent-soft: var(--mc-blue-soft);            --ws-accent-border: rgba(56,189,248,0.22);   --ws-accent-glow: rgba(56,189,248,0.32); }
+.ws-dept--action-center { --ws-accent: var(--mc-orange); --ws-accent-soft: var(--mc-orange-soft);        --ws-accent-border: rgba(251,146,60,0.28);   --ws-accent-glow: var(--mc-orange-glow); }
 
 /* ─── base reset ─────────────────────────────────────────────────── */
 
