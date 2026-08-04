@@ -207,6 +207,22 @@
         'globalFootprint', 'mediaIntelligence', 'monitoringIntelligence', 'executiveBrief',
       ],
     },
+    'action-center': {
+      // Executive Action Center™ (Phase 4C) has no required domain, same
+      // reasoning as ask-athena: its content -- the Executive Opportunity
+      // Roadmap™, and future Timeline/Progress/Playbooks sections -- comes
+      // from the Playbook Action / Opportunity Engine tables via the
+      // artist's own Supabase session (/api/opportunity-actions), not from
+      // any field on the runtime context object. A valid scan context is
+      // enough to prove a real artist session exists; the workspace's own
+      // sections degrade honestly (e.g. "No rankable Playbook Actions yet")
+      // when the artist has no Playbook Actions started, independent of
+      // what canonical scan data is or isn't present.
+      required:       [],
+      requiredFields: [],
+      requiredTypes:  {},
+      optional:       [],
+    },
   };
 
   // -- Field path resolver --------------------------------------------------
