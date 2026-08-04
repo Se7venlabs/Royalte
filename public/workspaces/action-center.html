@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Executive Action Center™ — Royaltē OS</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/royalte-rds.css">
+  <link rel="stylesheet" href="/css/royalte-workspace.css">
+  <script>
+  /* DEV FIXTURE — localhost only, never runs on production (Vercel hostname check). */
+  (function () {
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (!isLocal) return;
+    if (sessionStorage.getItem('royalte_workspace_context')) return;
+    sessionStorage.setItem('royalte_workspace_context', JSON.stringify({
+      schemaVersion: '1.1',
+      scanId: 'preview-fixture-action-center-001',
+      artistName: 'Prince',
+      scannedAt: new Date().toISOString(),
+      generatedAt: new Date().toISOString(),
+    }));
+  }());
+  </script>
+  <script src="/js/mc-workspace-context.js"></script>
+  <style>
+    .ec-section { border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface); padding: 20px 22px; margin-bottom: 16px; }
+    .ec-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .ec-section-title { font-size: 14px; font-weight: 700; color: var(--mc-text); }
+    .ec-section-sub { font-size: 11.5px; color: var(--mc-text-muted); }
+    .ec-section-status { font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--ws-accent-border); color: var(--ws-accent); background: var(--ws-accent-soft); }
+    .ec-section-empty { margin-top: 12px; font-size: 12px; color: var(--mc-text-faint); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="ws-shell ws-dept--action-center">
+
+  <aside class="ws-rail" role="navigation" aria-label="Royaltē OS navigation">
+    <a class="mc-brand" href="/mission-control.html">
+      <div class="mc-brand-mark" aria-hidden="true">ē</div>
+      <div>
+        <div class="mc-brand-text">ROYALTĒ</div>
+        <div class="mc-brand-sub">MISSION CONTROL</div>
+      </div>
+    </a>
+    <nav class="mc-nav">
+      <a class="mc-nav-item" href="/mission-control.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-mission-control"></use></svg></span>
+        <span><span class="mc-nav-label">Mission Control</span><div class="mc-nav-sub">Executive Overview</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/health-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-health"></use></svg></span>
+        <span><span class="mc-nav-label">Health Intelligence</span><div class="mc-nav-sub">System Status</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/identity-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-identity"></use></svg></span>
+        <span><span class="mc-nav-label">Identity Intelligence</span><div class="mc-nav-sub">Who You Are</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/publishing-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-publishing"></use></svg></span>
+        <span><span class="mc-nav-label">Publishing Intelligence</span><div class="mc-nav-sub">Your Works</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/catalog-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-catalog"></use></svg></span>
+        <span><span class="mc-nav-label">Catalog Intelligence</span><div class="mc-nav-sub">Your Releases</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/global-music-footprint.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-global"></use></svg></span>
+        <span><span class="mc-nav-label">Global Music Footprint™</span><div class="mc-nav-sub">Where Your Music Exists</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/media-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-media"></use></svg></span>
+        <span><span class="mc-nav-label">Media Intelligence™</span><div class="mc-nav-sub">Video &amp; Visual Presence</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ai-insights.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-ai-insights"></use></svg></span>
+        <span><span class="mc-nav-label">AI Insights</span><div class="mc-nav-sub">Intelligence Brief</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/backend-intelligence.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-backend"></use></svg></span>
+        <span><span class="mc-nav-label">Backend Intelligence</span><div class="mc-nav-sub">Infrastructure Connected</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/ask-athena.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-insights"></use></svg></span>
+        <span><span class="mc-nav-label">Ask ATHENA™</span><div class="mc-nav-sub">Executive Advisor</div></span>
+      </a>
+      <a class="mc-nav-item mc-nav-item--active" href="/workspaces/action-center.html" aria-current="page">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg></span>
+        <span><span class="mc-nav-label">Action Center</span><div class="mc-nav-sub">Roadmap &amp; Playbooks</div></span>
+      </a>
+      <a class="mc-nav-item" href="/workspaces/settings.html">
+        <span class="mc-nav-icon" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-settings"></use></svg></span>
+        <span><span class="mc-nav-label">Settings</span><div class="mc-nav-sub">Account &amp; Preferences</div></span>
+      </a>
+    </nav>
+  </aside>
+
+  <div id="ws-no-scan-overlay" hidden style="display:none;position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:32px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" style="color:#6b7280" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:-0.02em;">No Scan Loaded</div>
+    <div style="font-size:13px;color:#9ca3af;max-width:280px;line-height:1.6;">Run a scan from Mission Control to open your Executive Action Center.</div>
+    <a href="/mission-control.html" style="margin-top:8px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Mission Control</a>
+  </div>
+
+  <div class="ws-content">
+    <header class="ws-breadcrumb">
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Royaltē OS™</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <a class="ws-breadcrumb-link" href="/mission-control.html">Mission Control</a>
+      <span class="ws-breadcrumb-sep">/</span>
+      <span>Executive Action Center™</span>
+    </header>
+
+    <div class="ws-body" style="opacity:0;transition:opacity .2s ease;">
+      <h1 style="font-size:20px;font-weight:800;color:var(--mc-text);margin-bottom:4px;">Executive Action Center™</h1>
+      <div style="font-size:12.5px;color:var(--mc-text-muted);margin-bottom:18px;">The canonical home for Executive Opportunity Roadmap™, Executive Timeline™, Executive Progress™, and Guided Playbooks™ — Phase 4 Executive Actions™.</div>
+
+      <div id="ec-roadmap-section" class="ec-section">
+        <div class="ec-section-header">
+          <div>
+            <div class="ec-section-title">Executive Opportunity Roadmap™</div>
+            <div class="ec-section-sub">Do Now · Do Next · Do Later · Quick Wins</div>
+          </div>
+          <span class="ec-section-status">Phase 4C — PR #2</span>
+        </div>
+        <div class="ec-section-empty">Not yet wired to this workspace — the Executive Opportunity Engine™'s scoring and ranking data already exists; rendering it here is the next Phase 4C milestone.</div>
+      </div>
+
+      <div id="ec-timeline-section" class="ec-section">
+        <div class="ec-section-header">
+          <div>
+            <div class="ec-section-title">Executive Timeline™</div>
+            <div class="ec-section-sub">Every Playbook lifecycle event, in order</div>
+          </div>
+          <span class="ec-section-status">Phase 4C — PR #3</span>
+        </div>
+        <div class="ec-section-empty">Not yet wired to this workspace.</div>
+      </div>
+
+      <div id="ec-progress-section" class="ec-section">
+        <div class="ec-section-header">
+          <div>
+            <div class="ec-section-title">Executive Progress™</div>
+            <div class="ec-section-sub">Scope under Board review</div>
+          </div>
+          <span class="ec-section-status">Phase 4C — PR #4</span>
+        </div>
+        <div class="ec-section-empty">Not yet wired to this workspace.</div>
+      </div>
+
+      <div id="ec-playbooks-section" class="ec-section">
+        <div class="ec-section-header">
+          <div>
+            <div class="ec-section-title">Guided Playbooks™</div>
+            <div class="ec-section-sub">Currently on AI Insights™ — relocating here</div>
+          </div>
+          <span class="ec-section-status">Phase 4C — PR #5</span>
+        </div>
+        <div class="ec-section-empty">Not yet wired to this workspace.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════
+// § 1 — CONTEXT
+// Canonical Workspace Architecture™: read-only, no computation.
+// ═══════════════════════════════════════════════════════════
+var _result = window.RoyalteContext.readWorkspaceContext({ contract: 'action-center' });
+var _overlay = document.getElementById('ws-no-scan-overlay');
+if (_result.state !== 'valid') {
+  if (_overlay) { _overlay.hidden = false; _overlay.style.display = 'flex'; }
+} else {
+  var _body = document.querySelector('.ws-body');
+  if (_body) _body.style.opacity = '1';
+}
+
+// ═══════════════════════════════════════════════════════════
+// § 2 — INTELLIGENCE
+// Foundation PR (Phase 4C PR #1): no synthesis yet. Each section
+// above becomes a real §2/§3/§4 consumer of already-shipped Phase
+// 4A/4B data in its own dedicated PR -- see governance/ROADMAP.md.
+// ═══════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// § 3 — PRESENTATION / § 4 — RENDER
+// Static in this foundation pass -- the four section shells above
+// are already in the DOM; nothing to compute or write yet.
+// ═══════════════════════════════════════════════════════════
+</script>
+</body>
+</html>
