@@ -345,6 +345,29 @@ await test('getOpportunityRoadmap exposes the Playbook Definition title directly
   assert.notEqual(result.roadmap.all[0].title, 'test-quick-win', 'must be the human-readable definition title, not the raw playbookId');
 });
 
+await test('getOpportunityRoadmap exposes status (real cross-reference to playbook_actions) and prerequisites (from the Playbook Definition) -- Phase 4C PR #3 Executive Timeline™ fields, no fabricated data', async () => {
+  const supabase = makeMockSupabase({
+    playbook_actions: [
+      { id: 'a1', artist_profile_id: 'artist-1', playbook_id: 'test-quick-win', status: 'in_progress' },
+    ],
+  });
+  const actions = [makeAction({ id: 'a1', playbook_id: 'mlc-registration', status: 'in_progress' })];
+  await recomputeOpportunityRoadmap({ supabase, artistProfileId: 'artist-1', actions });
+  const result = await getOpportunityRoadmap({ supabase, artistProfileId: 'artist-1' });
+  const item = result.roadmap.all[0];
+  assert.equal(item.status, 'in_progress', 'status must be the real playbook_actions.status, cross-referenced by action_id');
+  assert.ok(Array.isArray(item.prerequisites), 'prerequisites must be an array');
+  assert.ok(item.prerequisites.length > 0, 'mlc-registration has real prerequisites on its Definition -- must not be dropped');
+});
+
+await test('getOpportunityRoadmap degrades status to null (never fabricates a default) when no matching playbook_actions row is found', async () => {
+  const supabase = makeMockSupabase();
+  const actions = [makeAction({ id: 'orphan-1', playbook_id: 'test-quick-win', status: 'started' })];
+  await recomputeOpportunityRoadmap({ supabase, artistProfileId: 'artist-1', actions });
+  const result = await getOpportunityRoadmap({ supabase, artistProfileId: 'artist-1' });
+  assert.equal(result.roadmap.all[0].status, null, 'must degrade honestly to null, never fabricate e.g. "available"');
+});
+
 await test('describeScoreHistoryEvent labels first score, band change, score-only change, and no-change distinctly', async () => {
   assert.ok(describeScoreHistoryEvent({ from_band: null, rank: 1, score: 90, band: 'DO_NOW', is_quick_win: false }).includes('Ranked #1'));
   assert.ok(describeScoreHistoryEvent({ from_band: 'DO_NEXT', band: 'DO_NOW', from_score: 60, score: 85, rank: 1 }).includes('Moved from DO_NEXT to DO_NOW'));

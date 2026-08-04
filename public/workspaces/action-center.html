@@ -113,9 +113,14 @@
     .ec-quickwin-title { font-size: 12px; font-weight: 700; color: var(--mc-text); line-height: 1.3; }
     .ec-quickwin-meta { font-size: 10.5px; color: var(--mc-text-faint); margin-top: 2px; }
 
-    /* ── Roadmap module cards (Timeline / Progress / Playbooks) ─────────── */
-    .ec-modules-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    /* ── Roadmap module cards (Progress / Playbooks — not yet wired) ────── */
+    .ec-modules-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     @media (max-width: 900px) { .ec-modules-row { grid-template-columns: 1fr; } }
+
+    /* ── Timeline cards (extends .ec-roadmap-card with status + dependencies) */
+    .ec-timeline-status-badge { font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; white-space: nowrap; color: var(--mc-text-muted); background: var(--mc-surface-3); border: 1px solid var(--mc-border); }
+    .ec-timeline-deps { font-size: 10.5px; color: var(--mc-text-faint); line-height: 1.5; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--mc-border); }
+    .ec-timeline-deps strong { color: var(--mc-text-muted); font-weight: 700; }
     .ec-module-card { border: 1px solid var(--mc-border); border-radius: 12px; background: var(--mc-surface); padding: 18px; }
     .ec-module-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--ws-accent-soft); border: 1px solid var(--ws-accent-border); color: var(--ws-accent); margin-bottom: 12px; }
     .ec-module-icon svg { width: 19px; height: 19px; }
@@ -301,17 +306,28 @@
         <div class="ec-quickwins-row" id="ec-quickwins-body"></div>
       </div>
 
-      <!-- § ROADMAP MODULES — Timeline / Progress / Playbooks (not yet wired) ── -->
-      <div class="ec-modules-row">
-        <div id="ec-timeline-section" class="ec-module-card">
-          <div class="ec-module-icon" aria-hidden="true">
-            <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
+      <!-- § EXECUTIVE TIMELINE — reuses the same computeRoadmap response as the
+           Roadmap section above (roadmap.doNow/doNext/doLater), no second
+           API call and no new grouping logic; see § 2 in the script below
+           for the full reasoning. ─────────────────────────────────────── -->
+      <div id="ec-timeline-section" class="ec-section">
+        <div class="ec-section-header">
+          <div class="ec-section-title-row">
+            <div class="ec-section-icon" aria-hidden="true">
+              <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-calendar"></use></svg>
+            </div>
+            <div>
+              <div class="ec-section-title">Executive Timeline™</div>
+              <div class="ec-section-sub">What to do next, and in what order</div>
+            </div>
           </div>
-          <div class="ec-module-title">Executive Timeline™</div>
-          <div class="ec-module-desc">Your personalized timeline of actions, organized by when to take them.</div>
-          <span class="ec-section-status">Coming in PR #3</span>
+          <span class="ec-section-status" id="ec-timeline-status">Loading…</span>
         </div>
+        <div id="ec-timeline-body"></div>
+      </div>
 
+      <!-- § ROADMAP MODULES — Progress / Playbooks (not yet wired) ─────── -->
+      <div class="ec-modules-row">
         <div id="ec-progress-section" class="ec-module-card">
           <div class="ec-module-icon" aria-hidden="true">
             <svg class="royalte-icon" fill="currentColor" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-performance"></use></svg>
@@ -384,6 +400,15 @@ function priorityBadgeClass(rawValue) {
 async function loadOpportunityRoadmap() {
   var statusEl = document.getElementById('ec-roadmap-status');
   var bodyEl = document.getElementById('ec-roadmap-body');
+  var timelineStatusEl = document.getElementById('ec-timeline-status');
+  var timelineBodyEl = document.getElementById('ec-timeline-body');
+
+  function fail(statusText, message) {
+    statusEl.textContent = statusText;
+    bodyEl.innerHTML = '<div class="ec-section-empty">' + esc(message) + '</div>';
+    timelineStatusEl.textContent = statusText;
+    timelineBodyEl.innerHTML = '<div class="ec-section-empty">' + esc(message) + '</div>';
+  }
 
   var accessToken = null;
   try {
@@ -396,8 +421,7 @@ async function loadOpportunityRoadmap() {
   } catch (e) { /* proceed unauthenticated -- the endpoint will surface a 401 clearly */ }
 
   if (!accessToken) {
-    statusEl.textContent = 'Sign In Required';
-    bodyEl.innerHTML = '<div class="ec-section-empty">Sign in to view your Executive Opportunity Roadmap™.</div>';
+    fail('Sign In Required', 'Sign in to view your Executive Opportunity Roadmap™.');
     return;
   }
 
@@ -409,15 +433,13 @@ async function loadOpportunityRoadmap() {
     });
     if (!resp.ok) {
       var errBody = await resp.json().catch(function () { return {}; });
-      statusEl.textContent = 'Unavailable';
-      bodyEl.innerHTML = '<div class="ec-section-empty">' + esc(errBody.error || ('Roadmap request failed (status ' + resp.status + ').')) + '</div>';
+      fail('Unavailable', errBody.error || ('Roadmap request failed (status ' + resp.status + ').'));
       return;
     }
     var data = await resp.json();
     renderOpportunityRoadmap(data);
   } catch (e) {
-    statusEl.textContent = 'Unavailable';
-    bodyEl.innerHTML = '<div class="ec-section-empty">Roadmap request failed. Please try again.</div>';
+    fail('Unavailable', 'Roadmap request failed. Please try again.');
   }
 }
 
@@ -454,9 +476,9 @@ function roadmapCard(item) {
   );
 }
 
-function roadmapColumn(iconModifier, iconId, label, sub, items) {
+function opportunityColumn(cardRenderer, iconModifier, iconId, label, sub, items) {
   var cards = items.length
-    ? items.map(roadmapCard).join('')
+    ? items.map(cardRenderer).join('')
     : '<div class="ec-roadmap-col-empty">Nothing here right now.</div>';
   return (
     '<div>' +
@@ -470,6 +492,78 @@ function roadmapColumn(iconModifier, iconId, label, sub, items) {
       cards +
     '</div>'
   );
+}
+
+function humanizeStatus(status) {
+  if (!status) return null;
+  return String(status).split('_').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════
+// § 2b — Executive Timeline™ (Phase 4C PR #3). Reuses the exact same
+// roadmap.doNow/doNext/doLater arrays already computed above for the
+// Roadmap section -- Immediate/Upcoming/Future map 1:1 onto the same
+// DO_NOW/DO_NEXT/DO_LATER bands the Scoring Engine already assigns,
+// in the same rank order the engine already produced. No second API
+// call, no new grouping/time-window logic invented here: there is no
+// per-action due-date or scheduling concept anywhere in the backend
+// today, so splitting into five separate "Immediate/Today/This
+// Week/Next Week/Future" buckets would mean either arbitrarily
+// slicing a band by array position (fabricated ordering) or
+// inventing a time estimate that doesn't exist -- both excluded by
+// this phase's own "no fabricated data" / "do not hard-code the
+// ordering" directive. This is deliberately distinct from Phase 4A's
+// existing "Automatic Executive Timeline™" (playbook_action_history /
+// describeHistoryEvent()), which is a historical audit log of past
+// transitions -- this section is a forward execution plan over
+// ranked, not-yet-resolved opportunities.
+// ═══════════════════════════════════════════════════════════
+function timelineCard(item) {
+  var quickWinBadge = item.isQuickWin ? '<span class="ec-quick-win-badge">Quick Win™</span>' : '';
+  var fb = item.factorBreakdown || {};
+  var priority = fb.priorityWeight && fb.priorityWeight.rawValue;
+  var minutes = fb.estimatedTime && fb.estimatedTime.rawValue;
+  var businessImpact = fb.businessImpact && fb.businessImpact.rawValue;
+  var statusLabel = humanizeStatus(item.status);
+  var deps = item.prerequisites || [];
+
+  var metaChips = '';
+  if (statusLabel) metaChips += '<span class="ec-timeline-status-badge">' + esc(statusLabel) + '</span>';
+  if (minutes != null) metaChips += '<span class="ec-meta-chip">' + esc(minutes) + ' min</span>';
+  if (businessImpact) metaChips += '<span class="ec-meta-chip">Business Impact: ' + esc(titleCase(businessImpact)) + '</span>';
+
+  return (
+    '<div class="ec-roadmap-card">' +
+      '<div class="ec-roadmap-card-top">' +
+        '<div class="ec-roadmap-card-title">' + esc(item.title) + quickWinBadge + '</div>' +
+        (priority ? '<span class="ec-priority-badge ' + priorityBadgeClass(priority) + '">' + esc(priority) + '</span>' : '') +
+      '</div>' +
+      (metaChips ? '<div class="ec-roadmap-card-meta">' + metaChips + '</div>' : '') +
+      '<div class="ec-roadmap-card-score-row">' +
+        '<div class="ec-score-bar"><div class="ec-score-bar-fill" style="width:' + Math.max(0, Math.min(100, item.score || 0)) + '%"></div></div>' +
+        '<span class="ec-score-num">' + esc(item.score) + '/100</span>' +
+      '</div>' +
+      (deps.length ? '<div class="ec-timeline-deps"><strong>Dependencies:</strong> ' + esc(deps.join('; ')) + '</div>' : '') +
+    '</div>'
+  );
+}
+
+function renderExecutiveTimeline(roadmap) {
+  var statusEl = document.getElementById('ec-timeline-status');
+  var bodyEl = document.getElementById('ec-timeline-body');
+
+  statusEl.textContent = roadmap.all.length + ' Scheduled';
+
+  if (roadmap.all.length === 0) {
+    bodyEl.innerHTML = '<div class="ec-section-empty">No opportunities need action right now.</div>';
+    return;
+  }
+
+  bodyEl.innerHTML = '<div class="ec-roadmap-cols">' +
+    opportunityColumn(timelineCard, 'now', 'royalte-alert', 'Immediate', 'Highest priority · rank order', roadmap.doNow) +
+    opportunityColumn(timelineCard, 'next', 'royalte-clock', 'Upcoming', 'Next in line · rank order', roadmap.doNext) +
+    opportunityColumn(timelineCard, 'later', 'royalte-calendar', 'Future', 'Lower urgency · rank order', roadmap.doLater) +
+  '</div>';
 }
 
 function quickWinTile(item) {
@@ -503,27 +597,29 @@ function renderOpportunityRoadmap(data) {
 
   if (roadmap.all.length === 0) {
     bodyEl.innerHTML = '<div class="ec-section-empty">No rankable Playbook Actions yet — start a Guided Playbook from AI Insights™ to build your Executive Opportunity Roadmap™.</div>';
-    return;
+  } else {
+    bodyEl.innerHTML = '<div class="ec-roadmap-cols">' +
+      opportunityColumn(roadmapCard, 'now', 'royalte-alert', 'Do Now', 'High impact · Do immediately', roadmap.doNow) +
+      opportunityColumn(roadmapCard, 'next', 'royalte-clock', 'Do Next', 'Important · Next in line', roadmap.doNext) +
+      opportunityColumn(roadmapCard, 'later', 'royalte-calendar', 'Do Later', 'Lower impact · Future opportunities', roadmap.doLater) +
+    '</div>';
+
+    var quickWinsSection = document.getElementById('ec-quickwins-section');
+    var quickWinsBody = document.getElementById('ec-quickwins-body');
+    if (roadmap.quickWins.length > 0) {
+      quickWinsSection.hidden = false;
+      quickWinsBody.innerHTML = roadmap.quickWins.map(quickWinTile).join('');
+    }
   }
 
-  bodyEl.innerHTML = '<div class="ec-roadmap-cols">' +
-    roadmapColumn('now', 'royalte-alert', 'Do Now', 'High impact · Do immediately', roadmap.doNow) +
-    roadmapColumn('next', 'royalte-clock', 'Do Next', 'Important · Next in line', roadmap.doNext) +
-    roadmapColumn('later', 'royalte-calendar', 'Do Later', 'Lower impact · Future opportunities', roadmap.doLater) +
-  '</div>';
-
-  var quickWinsSection = document.getElementById('ec-quickwins-section');
-  var quickWinsBody = document.getElementById('ec-quickwins-body');
-  if (roadmap.quickWins.length > 0) {
-    quickWinsSection.hidden = false;
-    quickWinsBody.innerHTML = roadmap.quickWins.map(quickWinTile).join('');
-  }
+  renderExecutiveTimeline(roadmap);
 }
 
 if (_result.state === 'valid') {
   loadOpportunityRoadmap();
 } else {
   document.getElementById('ec-roadmap-status').textContent = 'No Scan';
+  document.getElementById('ec-timeline-status').textContent = 'No Scan';
 }
 </script>
 </body>
