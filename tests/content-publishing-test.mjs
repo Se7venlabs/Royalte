@@ -21,6 +21,7 @@ import { syncDecidedApprovals } from '../scripts/content-publishing/sync-approva
 import { signToken, verifyToken, decodeTokenUnsafe } from '../scripts/content-publishing/approval-tokens.mjs';
 import { extractSeoMetadata } from '../scripts/content-publishing/approval-mailer.mjs';
 import { logAudit, resolveAuditSlug } from '../scripts/content-publishing/approval-audit.mjs';
+import { renderPublishingCalendar } from '../scripts/content-publishing/generate-publishing-calendar.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -783,6 +784,25 @@ await test('logAudit never has a code path that can log a token or secret value 
     console.error = originalConsoleError;
   }
   assert.ok(!captured.join(' ').includes(sensitiveLookingValue), 'no logged output may ever contain a token-shaped value');
+});
+
+await test('renderPublishingCalendar groups every article into exactly one lifecycle section, sorted by publishDate', async () => {
+  const articles = [
+    makeArticle({ slug: 'live-1', publishStatus: 'published', publishDate: '2026-07-01' }),
+    makeArticle({ slug: 'scheduled-1', publishStatus: 'scheduled', approvalStatus: 'approved', publishDate: '2026-09-01' }),
+    makeArticle({ slug: 'awaiting-1', publishStatus: 'scheduled', approvalStatus: 'awaiting_approval', publishDate: '2026-08-01' }),
+    makeArticle({ slug: 'needs-revision-1', publishStatus: 'scheduled', approvalStatus: 'needs_revision', publishDate: '2026-08-01' }),
+    makeArticle({ slug: 'draft-1', publishStatus: 'draft', approvalStatus: 'pending', publishDate: null }),
+  ];
+  const markdown = renderPublishingCalendar(articles, '2026-08-04T00:00:00.000Z');
+  for (const a of articles) {
+    assert.ok(markdown.includes(a.slug), `${a.slug} must appear somewhere in the calendar`);
+  }
+  assert.ok(markdown.includes('### Published (1)'));
+  assert.ok(markdown.includes('### Scheduled (approved, awaiting publish date) (1)'));
+  assert.ok(markdown.includes('### Awaiting Approval (email sent, no decision yet) (1)'));
+  assert.ok(markdown.includes('### Needs Revision (rejected) (1)'));
+  assert.ok(markdown.includes('### Draft (not yet scheduled) (1)'));
 });
 
 // ═══════════════════════════════════════════════════════════════════════
