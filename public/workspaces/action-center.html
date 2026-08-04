@@ -95,11 +95,23 @@
     </nav>
   </aside>
 
-  <div id="ws-no-scan-overlay" hidden style="display:none;position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:32px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" style="color:#6b7280" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:-0.02em;">No Scan Loaded</div>
-    <div style="font-size:13px;color:#9ca3af;max-width:280px;line-height:1.6;">Run a scan from Mission Control to open your Executive Action Center.</div>
-    <a href="/mission-control.html" style="margin-top:8px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Mission Control</a>
+  <div id="ws-no-scan-overlay" hidden style="display:none;position:fixed;inset:0;background:rgba(10,10,10,.94);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:32px;">
+    <span style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--mc-orange-soft,rgba(251,146,60,0.14));border:1px solid var(--mc-border-orange,rgba(251,146,60,0.28));" aria-hidden="true"><svg class="royalte-icon royalte-icon--md" fill="currentColor" style="color:var(--mc-orange,#fb923c);" aria-hidden="true"><use href="/icons/royalte-icon-registry.svg#royalte-check-circle"></use></svg></span>
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mc-orange,#fb923c);">Executive Action Center™</div>
+    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:-0.02em;">Executive Action Center Ready</div>
+    <div style="font-size:13px;color:#9ca3af;max-width:320px;line-height:1.6;">Run or open a music scan from Mission Control to unlock your Executive Action Center™.</div>
+    <div style="font-size:12px;color:#9ca3af;max-width:320px;line-height:1.9;text-align:left;margin-top:4px;">
+      Once a scan is loaded, this workspace will provide:
+      <ul style="margin:8px 0 0 0;padding-left:18px;">
+        <li>Executive Opportunity Roadmap™</li>
+        <li>Executive Timeline™</li>
+        <li>Executive Progress™</li>
+        <li>Guided Playbooks™</li>
+        <li>Executive Actions™</li>
+        <li>Quick Wins™</li>
+      </ul>
+    </div>
+    <a href="/mission-control.html" style="margin-top:10px;padding:10px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e5e7eb;text-decoration:none;font-size:13px;font-weight:500;">← Return to Mission Control</a>
   </div>
 
   <div class="ws-content">
