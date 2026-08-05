@@ -36,7 +36,7 @@ New `.ws-dept--action-center` accent (`public/css/royalte-workspace.css`) uses `
 |---|---|---|
 | #2 | Executive Opportunity Roadmap™ — render Do Now/Next/Later + Quick Wins | 4B's `opportunity-scoring-engine.js`/`opportunity-store.js` (already complete, unmodified) — **COMPLETE**, PR #485 |
 | #3 | Executive Timeline™ | **Resolved during implementation** (confirmed, not assumed, per the note this row previously carried): this is a forward execution plan over Phase 4B's ranked Opportunity Roadmap — `roadmap.doNow/doNext/doLater` reused as-is, no second API call, no new grouping logic (see § below). It is a *different* feature from Phase 4A's existing "Automatic Executive Timeline™" (`describeHistoryEvent()`/`playbook_action_history`), which remains a historical audit log of past status transitions, still unwired to any UI — the similar name is coincidental, not a merge of the two. |
-| #4 | Executive Progress™ | Scope undefined anywhere in governance — implementation must stop and return to the Board if it remains undefined after technical review, per the Board's own directive |
+| #4 | Executive Progress™ | **COMPLETE**, PR #489. Scope was genuinely undefined at the start of this row (as noted); resolved via technical review that surfaced `getPlaybookCounts()`/`GET /api/playbook-actions` as an existing, uncontested, zero-new-logic data source, then confirmed by the Board rather than assumed. |
 | #5 | Guided Playbooks™ expansion | A 3rd real Playbook Definition, following the existing `api/playbooks/definitions/*.js` pattern exactly |
 | #6 | Executive Certification | Full regression, live Executive Board Certification Walkthrough™, documentation, merge |
 
